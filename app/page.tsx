@@ -1,18 +1,28 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { BookOpen, Users, MessageSquare, Network } from 'lucide-react'
+import { Brain, MessageSquare, Network, Lightbulb } from 'lucide-react'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
-            D&D Campaign Manager
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/mgxs-logo.png"
+              alt="MGXS"
+              width={80}
+              height={80}
+              className="dark:invert"
+            />
+          </div>
+          <h1 className="text-5xl font-bold mb-4">
+            Firmino
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A collaborative wiki-style campaign manager with Obsidian-style wikilinks
-            and AI-powered search for your tabletop adventures.
+            Your personal AI assistant for capturing ideas, organizing projects,
+            and connecting your creative work.
           </p>
         </div>
 
@@ -27,24 +37,24 @@ export default function Home() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
           <FeatureCard
-            icon={<BookOpen className="h-8 w-8" />}
-            title="Wiki-Style Notes"
-            description="Create interconnected notes for NPCs, locations, items, and lore with [[wikilinks]]."
+            icon={<Lightbulb className="h-8 w-8" />}
+            title="Capture Ideas"
+            description="Store and organize your ideas, references, and inspirations with [[wikilinks]]."
           />
           <FeatureCard
             icon={<Network className="h-8 w-8" />}
             title="Knowledge Graph"
-            description="Visualize your campaign's connections with an interactive force-directed graph."
+            description="Visualize connections between your ideas with an interactive graph."
           />
           <FeatureCard
             icon={<MessageSquare className="h-8 w-8" />}
             title="AI-Powered Search"
-            description="Ask questions about your campaign and get answers with source citations."
+            description="Ask questions about your ideas and get answers with source citations."
           />
           <FeatureCard
-            icon={<Users className="h-8 w-8" />}
-            title="Collaborative"
-            description="DMs and players can work together with role-based permissions."
+            icon={<Brain className="h-8 w-8" />}
+            title="Smart Extraction"
+            description="Automatically extract and link concepts from your documents."
           />
         </div>
       </div>

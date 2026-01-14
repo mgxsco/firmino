@@ -34,12 +34,15 @@ type CampaignAuthHandler<T = { campaignId: string }> = (
  * })
  */
 export function withAuth<T = void>(handler: AuthHandler<T>) {
-  return async (request: NextRequest, { params }: { params: T }) => {
+  return async (request: NextRequest, { params }: { params: T | Promise<T> }) => {
     const session = await getSession()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Next.js 14+ params are a Promise
+    const resolvedParams = await Promise.resolve(params)
 
     const context: AuthContext = {
       session,
@@ -51,7 +54,7 @@ export function withAuth<T = void>(handler: AuthHandler<T>) {
       },
     }
 
-    return handler(request, context, params)
+    return handler(request, context, resolvedParams)
   }
 }
 
@@ -69,14 +72,17 @@ export function withAuth<T = void>(handler: AuthHandler<T>) {
 export function withCampaignAuth<T extends { campaignId: string }>(
   handler: CampaignAuthHandler<T>
 ) {
-  return async (request: NextRequest, { params }: { params: T }) => {
+  return async (request: NextRequest, { params }: { params: T | Promise<T> }) => {
     const session = await getSession()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const access = await checkCampaignAccess(params.campaignId, session.user.id)
+    // Next.js 14+ params are a Promise
+    const resolvedParams = await Promise.resolve(params)
+
+    const access = await checkCampaignAccess(resolvedParams.campaignId, session.user.id)
     if (isAccessError(access)) {
       return NextResponse.json({ error: access.error }, { status: access.status })
     }
@@ -90,10 +96,10 @@ export function withCampaignAuth<T extends { campaignId: string }>(
         image: session.user.image,
       },
       access,
-      campaignId: params.campaignId,
+      campaignId: resolvedParams.campaignId,
     }
 
-    return handler(request, context, params)
+    return handler(request, context, resolvedParams)
   }
 }
 
@@ -110,14 +116,17 @@ export function withCampaignAuth<T extends { campaignId: string }>(
 export function withDMAuth<T extends { campaignId: string }>(
   handler: CampaignAuthHandler<T>
 ) {
-  return async (request: NextRequest, { params }: { params: T }) => {
+  return async (request: NextRequest, { params }: { params: T | Promise<T> }) => {
     const session = await getSession()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const access = await checkCampaignAccess(params.campaignId, session.user.id)
+    // Next.js 14+ params are a Promise
+    const resolvedParams = await Promise.resolve(params)
+
+    const access = await checkCampaignAccess(resolvedParams.campaignId, session.user.id)
     if (isAccessError(access)) {
       return NextResponse.json({ error: access.error }, { status: access.status })
     }
@@ -135,9 +144,9 @@ export function withDMAuth<T extends { campaignId: string }>(
         image: session.user.image,
       },
       access,
-      campaignId: params.campaignId,
+      campaignId: resolvedParams.campaignId,
     }
 
-    return handler(request, context, params)
+    return handler(request, context, resolvedParams)
   }
 }

@@ -46,7 +46,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your D&D Campaign Manager</CardDescription>
+          <CardDescription>Sign in to Firmino</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">

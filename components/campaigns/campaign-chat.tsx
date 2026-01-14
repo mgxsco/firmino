@@ -226,7 +226,7 @@ export function CampaignChat({ campaignId, currentUserId }: CampaignChatProps) {
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="pb-3 shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+          <MessageSquare className="h-5 w-5 text-foreground" />
           Party Chat
           {realtimeConnected && (
             <span className="w-2 h-2 bg-green-500 rounded-full" title="Connected" />

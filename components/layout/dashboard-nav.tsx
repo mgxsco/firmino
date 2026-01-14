@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -13,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { BookOpen, LogOut, User as UserIcon } from 'lucide-react'
+import { LogOut, User as UserIcon } from 'lucide-react'
 import { ThemeSwitcher } from '@/components/theme-switcher'
 
 interface DashboardNavProps {
@@ -41,8 +42,14 @@ export function DashboardNav({ user }: DashboardNavProps) {
     <nav className="border-b bg-card">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/campaigns" className="flex items-center gap-2 font-semibold text-lg">
-          <BookOpen className="h-6 w-6 text-primary" />
-          <span>D&D Campaign Manager</span>
+          <Image
+            src="/mgxs-logo.png"
+            alt="MGXS"
+            width={28}
+            height={28}
+            className="dark:invert"
+          />
+          <span>Firmino</span>
         </Link>
 
         <div className="flex items-center gap-2">

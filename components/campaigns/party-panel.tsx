@@ -47,7 +47,7 @@ function getInitials(name: string | null): string {
 function getRoleIcon(role: 'dm' | 'player' | 'viewer') {
   switch (role) {
     case 'dm':
-      return <Crown className="h-3 w-3 text-[hsl(45_80%_45%)]" />
+      return <Crown className="h-3 w-3 text-foreground" />
     case 'player':
       return <Shield className="h-3 w-3 text-primary" />
     case 'viewer':
@@ -106,28 +106,19 @@ function MemberCard({
   return (
     <div
       className={cn(
-        'relative flex flex-col items-center p-3 rounded-sm border-2 bg-gradient-to-b from-card to-[hsl(35_25%_88%)] min-w-[90px] shrink-0',
-        isOwner && 'border-[hsl(45_80%_45%)] shadow-md',
+        'relative flex flex-col items-center p-3 border bg-card min-w-[90px] shrink-0',
+        isOwner && 'border-foreground shadow-md',
         !isOwner && 'border-border'
       )}
     >
-      {/* Decorative corners for owner */}
-      {isOwner && (
-        <>
-          <div className="absolute top-0.5 left-0.5 w-2 h-2 border-t border-l border-[hsl(45_80%_45%)]" />
-          <div className="absolute top-0.5 right-0.5 w-2 h-2 border-t border-r border-[hsl(45_80%_45%)]" />
-          <div className="absolute bottom-0.5 left-0.5 w-2 h-2 border-b border-l border-[hsl(45_80%_45%)]" />
-          <div className="absolute bottom-0.5 right-0.5 w-2 h-2 border-b border-r border-[hsl(45_80%_45%)]" />
-        </>
-      )}
-
+      
       {/* Avatar */}
       <div
         className={cn(
           'w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold',
           isOwner
-            ? 'bg-gradient-to-br from-[hsl(45_80%_45%)] to-[hsl(25_70%_35%)] text-white'
-            : 'bg-gradient-to-br from-primary to-[hsl(25_70%_30%)] text-primary-foreground'
+            ? 'bg-foreground text-background'
+            : 'bg-muted text-foreground'
         )}
       >
         {member.userImage ? (
@@ -230,7 +221,7 @@ export function PartyPanel({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Shield className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Shield className="h-5 w-5 text-foreground" />
             The Adventuring Party
           </CardTitle>
           {isDM && (

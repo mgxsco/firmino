@@ -5,8 +5,8 @@ import { SessionProvider } from '@/components/providers/session-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 
 export const metadata: Metadata = {
-  title: 'D&D Campaign Manager',
-  description: 'Collaborative D&D campaign management with AI-powered search',
+  title: 'Firmino',
+  description: 'Your personal AI assistant for ideas, projects, and creative work',
 }
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

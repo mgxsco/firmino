@@ -4,6 +4,7 @@ import { db, campaigns, campaignMembers, notes } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
 import { syncNoteEmbeddings } from '@/lib/ai/embeddings'
 import { syncNoteLinks } from '@/lib/wikilinks/sync'
+import { getCampaignSettings } from '@/lib/campaign-settings'
 import Anthropic from '@anthropic-ai/sdk'
 
 // Dynamic import for pdf-parse to avoid build issues
@@ -27,7 +28,11 @@ interface ExtractedNote {
   tags: string[]
 }
 
-async function analyzeAndExtractNotes(content: string, fileName: string): Promise<ExtractedNote[]> {
+async function analyzeAndExtractNotes(
+  content: string,
+  fileName: string,
+  model: string = 'claude-sonnet-4-20250514'
+): Promise<ExtractedNote[]> {
   if (!process.env.ANTHROPIC_API_KEY) {
     console.log('[Upload] No ANTHROPIC_API_KEY, skipping AI analysis')
     return [{
@@ -38,11 +43,11 @@ async function analyzeAndExtractNotes(content: string, fileName: string): Promis
     }]
   }
 
-  console.log('[Upload] Analyzing content with Claude...')
+  console.log(`[Upload] Analyzing content with ${model}...`)
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model,
     max_tokens: 4096,
     system: `You are a D&D campaign content analyzer. Extract structured notes from uploaded content.
 
@@ -221,7 +226,8 @@ export async function POST(
 
       // Analyze content and extract notes using AI
       console.log(`[Upload] Processing file: ${fileName}`)
-      const extractedNotes = await analyzeAndExtractNotes(content, fileName)
+      const campaignSettings = getCampaignSettings((campaign as any).settings)
+      const extractedNotes = await analyzeAndExtractNotes(content, fileName, campaignSettings.model.chatModel)
       console.log(`[Upload] Creating ${extractedNotes.length} notes from ${fileName}`)
 
       const createdNotes = []

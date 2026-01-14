@@ -83,7 +83,7 @@ export function SessionTimeline({ campaignId, isDM }: SessionTimelineProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <CalendarDays className="h-5 w-5 text-foreground" />
             Session Timeline
           </CardTitle>
         </CardHeader>
@@ -102,7 +102,7 @@ export function SessionTimeline({ campaignId, isDM }: SessionTimelineProps) {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+              <CalendarDays className="h-5 w-5 text-foreground" />
               Session Timeline
             </CardTitle>
             <CardDescription>Your adventure's journey</CardDescription>
@@ -132,7 +132,7 @@ export function SessionTimeline({ campaignId, isDM }: SessionTimelineProps) {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle className="text-lg flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <CalendarDays className="h-5 w-5 text-foreground" />
             Session Timeline
           </CardTitle>
           <CardDescription>{sessions.length} session{sessions.length !== 1 ? 's' : ''} recorded</CardDescription>

@@ -25,25 +25,25 @@ function getStatusConfig(status: string | null) {
       return {
         icon: Check,
         label: 'Completed',
-        className: 'bg-green-500/10 text-green-600 border-green-500/20',
+        className: 'bg-foreground/10 text-foreground border-foreground/20',
       }
     case 'planned':
       return {
         icon: Circle,
         label: 'Planned',
-        className: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+        className: 'bg-foreground/5 text-foreground/70 border-foreground/10',
       }
     case 'cancelled':
       return {
         icon: X,
         label: 'Cancelled',
-        className: 'bg-red-500/10 text-red-600 border-red-500/20 line-through',
+        className: 'bg-destructive/10 text-destructive border-destructive/20 line-through',
       }
     default:
       return {
         icon: Circle,
         label: 'Unknown',
-        className: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
+        className: 'bg-muted text-muted-foreground border-border',
       }
   }
 }

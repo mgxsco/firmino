@@ -92,7 +92,7 @@ export function QuestTracker({ campaignId }: QuestTrackerProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Swords className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Swords className="h-5 w-5 text-foreground" />
             Quests
           </CardTitle>
         </CardHeader>
@@ -110,7 +110,7 @@ export function QuestTracker({ campaignId }: QuestTrackerProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Swords className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Swords className="h-5 w-5 text-foreground" />
             Quests
           </CardTitle>
           <CardDescription>Track your campaign objectives</CardDescription>
@@ -144,7 +144,7 @@ export function QuestTracker({ campaignId }: QuestTrackerProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <Swords className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+          <Swords className="h-5 w-5 text-foreground" />
           Quests
         </CardTitle>
         <CardDescription>

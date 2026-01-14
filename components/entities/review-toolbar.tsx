@@ -53,7 +53,7 @@ export function ReviewToolbar({
             <strong>{stats.total}</strong> entities extracted
           </span>
           {stats.approved > 0 && (
-            <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
+            <Badge variant="outline" className="bg-foreground/10 text-foreground border-foreground/20">
               {stats.approved} approved
             </Badge>
           )}
@@ -63,7 +63,7 @@ export function ReviewToolbar({
             </Badge>
           )}
           {stats.rejected > 0 && (
-            <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20">
+            <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
               {stats.rejected} rejected
             </Badge>
           )}
@@ -84,7 +84,7 @@ export function ReviewToolbar({
           <Button
             variant="outline"
             size="sm"
-            className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={onRejectAll}
             disabled={stats.pending === 0}
           >

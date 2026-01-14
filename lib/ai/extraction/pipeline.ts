@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { CampaignSettings } from '@/lib/db/schema'
-import { getCampaignSettings, DEFAULT_PROMPTS } from '@/lib/campaign-settings'
+import { CampaignSettings, ClaudeModel } from '@/lib/db/schema'
+import { getCampaignSettings, DEFAULT_PROMPTS, DEFAULT_SETTINGS } from '@/lib/campaign-settings'
 
 // ============================================
 // Types
@@ -191,9 +191,10 @@ async function extractFromChunk(
   totalChunks: number,
   language: string = 'en',
   aggressiveness: 'conservative' | 'balanced' | 'obsessive' = 'obsessive',
-  customPrompts?: CustomPrompts
+  customPrompts?: CustomPrompts,
+  extractionModel: ClaudeModel = DEFAULT_SETTINGS.model.extractionModel
 ): Promise<ChunkExtraction> {
-  console.log(`[Extraction] Processing chunk ${chunkIndex + 1}/${totalChunks} (${content.length} chars, lang: ${language}, mode: ${aggressiveness})`)
+  console.log(`[Extraction] Processing chunk ${chunkIndex + 1}/${totalChunks} (${content.length} chars, lang: ${language}, mode: ${aggressiveness}, model: ${extractionModel})`)
 
   const anthropic = getAnthropicClient()
 
@@ -204,7 +205,7 @@ async function extractFromChunk(
   const systemPrompt = getExtractionSystemPrompt(aggressiveness, languageInstruction, customPrompts)
 
   const response = await anthropic.messages.create({
-    model: 'claude-3-5-haiku-20241022',
+    model: extractionModel,
     max_tokens: 8192,
     system: systemPrompt,
     messages: [{
@@ -503,6 +504,7 @@ export interface ExtractionSettings {
   maxChunks?: number // Limit chunks to avoid timeout (default: 15)
   parallelBatchSize?: number // Process N chunks in parallel (default: 3)
   customPrompts?: CustomPrompts // Custom extraction prompts
+  extractionModel?: ClaudeModel // Model to use for extraction
 }
 
 export async function runExtractionPipeline(
@@ -521,6 +523,7 @@ export async function runExtractionPipeline(
   const maxChunks = settings?.maxChunks ?? 15 // Limit to avoid Vercel timeout
   const parallelBatchSize = settings?.parallelBatchSize ?? 3 // Process 3 chunks in parallel
   const customPrompts = settings?.customPrompts
+  const extractionModel = settings?.extractionModel ?? DEFAULT_SETTINGS.model.extractionModel
 
   console.log(`[Extraction] Starting pipeline for ${fileName}`)
   console.log(`[Extraction] Content length: ${content.length} chars, language: ${language}`)
@@ -564,13 +567,13 @@ export async function runExtractionPipeline(
     const batchPromises = batchChunks.map(async (chunk, idx) => {
       const chunkIndex = batchStart + idx
       try {
-        // Timeout for individual chunk (20 seconds)
+        // Timeout for individual chunk (30 seconds - Haiku is fast but network can be slow)
         const chunkTimeout = new Promise<ChunkExtraction>((_, reject) =>
-          setTimeout(() => reject(new Error(`Chunk ${chunkIndex + 1} timed out`)), 20000)
+          setTimeout(() => reject(new Error(`Chunk ${chunkIndex + 1} timed out`)), 30000)
         )
 
         const extraction = await Promise.race([
-          extractFromChunk(chunk, chunkIndex, totalChunks, language, aggressiveness, customPrompts),
+          extractFromChunk(chunk, chunkIndex, totalChunks, language, aggressiveness, customPrompts, extractionModel),
           chunkTimeout,
         ])
 

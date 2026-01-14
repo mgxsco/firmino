@@ -3,6 +3,7 @@
 import { useRef, useCallback, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { GraphData, GraphNode } from '@/lib/types'
+import { getEntityTypeColor } from '@/lib/entity-colors'
 
 // Dynamically import force graph to avoid SSR issues
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), {
@@ -12,18 +13,6 @@ const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), {
 interface CampaignGraphProps {
   data: GraphData
   onNodeClick: (nodeId: string) => void
-}
-
-const NOTE_TYPE_COLORS: Record<string, string> = {
-  session: '#3b82f6',
-  npc: '#22c55e',
-  location: '#f59e0b',
-  item: '#a855f7',
-  lore: '#f43f5e',
-  quest: '#06b6d4',
-  faction: '#f97316',
-  player_character: '#6366f1',
-  freeform: '#6b7280',
 }
 
 export function CampaignGraph({ data, onNodeClick }: CampaignGraphProps) {
@@ -66,9 +55,9 @@ export function CampaignGraph({ data, onNodeClick }: CampaignGraphProps) {
     (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const label = node.title || ''
       const fontSize = 12 / globalScale
-      ctx.font = `${fontSize}px Sans-Serif`
+      ctx.font = `${fontSize}px Tomorrow, system-ui, sans-serif`
 
-      const nodeColor = NOTE_TYPE_COLORS[node.note_type] || '#6b7280'
+      const nodeColor = getEntityTypeColor(node.note_type).hex
 
       // Draw node circle
       ctx.beginPath()
@@ -105,7 +94,7 @@ export function CampaignGraph({ data, onNodeClick }: CampaignGraphProps) {
   }
 
   return (
-    <div id="graph-container" className="w-full h-[600px] bg-slate-900">
+    <div id="graph-container" className="w-full h-[600px] bg-background">
       <ForceGraph2D
         ref={graphRef}
         graphData={graphData}
@@ -121,7 +110,7 @@ export function CampaignGraph({ data, onNodeClick }: CampaignGraphProps) {
         onNodeClick={handleNodeClick}
         linkColor={() => 'rgba(255,255,255,0.2)'}
         linkWidth={1}
-        backgroundColor="#0f172a"
+        backgroundColor="#000000"
         cooldownTicks={100}
         onEngineStop={() => graphRef.current?.zoomToFit(400, 50)}
       />

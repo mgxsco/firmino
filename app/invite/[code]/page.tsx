@@ -91,7 +91,7 @@ export default function InvitePage() {
   // Loading state
   if (loading || sessionStatus === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-[hsl(35_25%_90%)]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="w-full max-w-md">
           <CardContent className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -104,7 +104,7 @@ export default function InvitePage() {
   // Error state
   if (error && !invite) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-[hsl(35_25%_90%)] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
@@ -129,7 +129,7 @@ export default function InvitePage() {
   // Success state
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-[hsl(35_25%_90%)] p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
@@ -157,12 +157,12 @@ export default function InvitePage() {
 
   // Invite preview state
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-[hsl(35_25%_90%)] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           {/* Decorative header */}
-          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-[hsl(45_80%_45%)] to-[hsl(25_70%_35%)] flex items-center justify-center mb-4 shadow-lg">
-            <Scroll className="h-8 w-8 text-white" />
+          <div className="mx-auto w-16 h-16 rounded-full bg-foreground flex items-center justify-center mb-4">
+            <Scroll className="h-8 w-8 text-background" />
           </div>
 
           <CardTitle className="text-xl">You've Been Invited!</CardTitle>
@@ -173,8 +173,8 @@ export default function InvitePage() {
 
         <CardContent className="space-y-6">
           {/* Campaign info */}
-          <div className="p-4 rounded-sm border-2 border-[hsl(45_80%_45%)] bg-gradient-to-b from-[hsl(35_30%_92%)] to-[hsl(35_25%_88%)]">
-            <h3 className="font-semibold text-lg" style={{ fontFamily: 'Cinzel, serif' }}>
+          <div className="p-4 border border-border bg-card">
+            <h3 className="font-semibold text-lg">
               {invite?.campaign.name}
             </h3>
             {invite?.campaign.description && (

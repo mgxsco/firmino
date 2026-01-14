@@ -70,11 +70,11 @@ export function CampaignSpotlight({ campaignId }: CampaignSpotlightProps) {
 
   if (loading) {
     return (
-      <Card className="relative overflow-hidden border-[hsl(45_80%_45%)]/30 bg-gradient-to-br from-background via-background to-[hsl(45_80%_45%)]/5">
+      <Card className="relative overflow-hidden">
         <CardContent className="py-8">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
-            <span>Consulting the Oracle...</span>
+            <span>Loading...</span>
           </div>
         </CardContent>
       </Card>
@@ -95,22 +95,16 @@ export function CampaignSpotlight({ campaignId }: CampaignSpotlightProps) {
   }
 
   return (
-    <Card className="relative overflow-hidden border-[hsl(45_80%_45%)]/30 bg-gradient-to-br from-background via-background to-[hsl(45_80%_45%)]/10">
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-[hsl(45_80%_45%)]/20 to-transparent rounded-br-full" />
-      <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-primary/10 to-transparent rounded-tl-full" />
+    <Card className="relative overflow-hidden">
 
       <CardContent className="relative py-6">
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-[hsl(45_80%_45%)]" />
-              <h2
-                className="text-lg font-semibold text-[hsl(45_80%_45%)]"
-                style={{ fontFamily: 'Cinzel, serif' }}
-              >
-                The Story So Far
+              <Sparkles className="h-5 w-5 text-foreground" />
+              <h2 className="text-lg font-semibold text-foreground">
+                Summary
               </h2>
             </div>
             <Button
@@ -140,10 +134,10 @@ export function CampaignSpotlight({ campaignId }: CampaignSpotlightProps) {
                 <p className="text-sm">{spotlight.keyTension}</p>
               </div>
             </div>
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-500/5 border border-orange-500/20">
-              <Flame className="h-5 w-5 text-orange-500 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 p-3 border border-border">
+              <Flame className="h-5 w-5 text-foreground/70 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-medium text-orange-600 uppercase tracking-wide mb-1">
+                <p className="text-xs font-medium text-foreground/70 uppercase tracking-wide mb-1">
                   At Stake
                 </p>
                 <p className="text-sm">{spotlight.atStake}</p>

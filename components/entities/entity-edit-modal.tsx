@@ -18,18 +18,19 @@ import { Pencil } from 'lucide-react'
 import type { StagedEntity } from '@/lib/types'
 
 const DEFAULT_ENTITY_TYPES = [
-  { value: 'npc', label: 'NPC' },
-  { value: 'player_character', label: 'Player Character' },
-  { value: 'location', label: 'Location' },
-  { value: 'item', label: 'Item' },
-  { value: 'quest', label: 'Quest' },
-  { value: 'faction', label: 'Faction' },
-  { value: 'lore', label: 'Lore' },
-  { value: 'creature', label: 'Creature' },
-  { value: 'event', label: 'Event' },
-  { value: 'spell', label: 'Spell' },
-  { value: 'deity', label: 'Deity' },
-  { value: 'freeform', label: 'Freeform' },
+  { value: 'artwork', label: 'Artwork' },
+  { value: 'character', label: 'Character' },
+  { value: 'reference', label: 'Reference' },
+  { value: 'technique', label: 'Technique' },
+  { value: 'client', label: 'Client' },
+  { value: 'style', label: 'Style' },
+  { value: 'idea', label: 'Idea' },
+  { value: 'task', label: 'Task' },
+  { value: 'milestone', label: 'Milestone' },
+  { value: 'asset', label: 'Asset' },
+  { value: 'note', label: 'Note' },
+  { value: 'inspiration', label: 'Inspiration' },
+  { value: 'freeform', label: 'Other' },
 ]
 
 interface EntityEditModalProps {
@@ -47,7 +48,7 @@ export function EntityEditModal({
 }: EntityEditModalProps) {
   // Form state
   const [name, setName] = useState('')
-  const [entityType, setEntityType] = useState('npc')
+  const [entityType, setEntityType] = useState('idea')
   const [content, setContent] = useState('')
   const [aliases, setAliases] = useState('')
   const [tags, setTags] = useState('')
@@ -227,7 +228,7 @@ export function EntityEditModal({
                 id="edit-tags"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                placeholder="wizard, mentor, ally..."
+                placeholder="portrait, concept, study..."
               />
             </div>
           </div>

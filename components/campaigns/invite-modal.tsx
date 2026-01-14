@@ -131,10 +131,10 @@ export function InviteModal({ campaignId, isOpen, onClose }: InviteModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-card to-[hsl(35_30%_88%)]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Shield className="h-5 w-5 text-foreground" />
             Invite to Party
           </DialogTitle>
           <DialogDescription>

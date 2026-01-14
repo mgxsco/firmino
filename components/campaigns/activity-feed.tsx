@@ -64,7 +64,7 @@ export function ActivityFeed({ campaignId, limit = 10 }: ActivityFeedProps) {
       case 'document_uploaded':
         return <FileText className="h-4 w-4 text-purple-500" />
       case 'session_added':
-        return <CalendarPlus className="h-4 w-4 text-[hsl(45_80%_45%)]" />
+        return <CalendarPlus className="h-4 w-4 text-foreground" />
       case 'member_joined':
         return <UserPlus className="h-4 w-4 text-cyan-500" />
       default:
@@ -148,7 +148,7 @@ export function ActivityFeed({ campaignId, limit = 10 }: ActivityFeedProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Activity className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Activity className="h-5 w-5 text-foreground" />
             Recent Activity
           </CardTitle>
         </CardHeader>
@@ -165,7 +165,7 @@ export function ActivityFeed({ campaignId, limit = 10 }: ActivityFeedProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <Activity className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+          <Activity className="h-5 w-5 text-foreground" />
           Recent Activity
         </CardTitle>
         <CardDescription>What's happening in your campaign</CardDescription>

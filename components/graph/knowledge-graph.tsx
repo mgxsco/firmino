@@ -228,7 +228,7 @@ export function KnowledgeGraph({
     (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const label = node.name || ''
       const fontSize = Math.max(10, 14 / globalScale)
-      ctx.font = `${fontSize}px Inter, system-ui, sans-serif`
+      ctx.font = `${fontSize}px Tomorrow, system-ui, sans-serif`
 
       const nodeColor = getTypeColor(node.type)
       const isHovered = hoveredNodeRef.current === node.id
@@ -252,8 +252,8 @@ export function KnowledgeGraph({
       ctx.fillStyle = nodeColor
       ctx.fill()
 
-      // Draw border - golden highlight
-      ctx.strokeStyle = isHovered || isCentered ? '#d4a942' : 'rgba(212, 169, 66, 0.4)'
+      // Draw border - white highlight
+      ctx.strokeStyle = isHovered || isCentered ? '#ffffff' : 'rgba(255, 255, 255, 0.3)'
       ctx.lineWidth = ((isHovered || isCentered ? 2.5 : 1.5) / globalScale)
       ctx.stroke()
 
@@ -262,8 +262,8 @@ export function KnowledgeGraph({
       const padding = 4
       const labelY = node.y + nodeSize + fontSize + 2
 
-      // Background for label - parchment style
-      ctx.fillStyle = 'rgba(42, 35, 24, 0.9)'
+      // Background for label - dark
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'
       ctx.fillRect(
         node.x - textWidth / 2 - padding,
         labelY - fontSize / 2 - padding / 2,
@@ -271,10 +271,10 @@ export function KnowledgeGraph({
         fontSize + padding
       )
 
-      // Label text - parchment color
+      // Label text - white
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillStyle = isHovered || isCentered ? '#e8dcc8' : 'rgba(232, 220, 200, 0.85)'
+      ctx.fillStyle = isHovered || isCentered ? '#ffffff' : 'rgba(255, 255, 255, 0.85)'
       ctx.fillText(label, node.x, labelY)
     },
     [centerId, nodeLinkCounts]
@@ -292,11 +292,11 @@ export function KnowledgeGraph({
         hoveredNodeRef.current === start.id ||
         hoveredNodeRef.current === end.id
 
-      // Draw line - parchment/golden tones
+      // Draw line - white/gray tones
       ctx.beginPath()
       ctx.moveTo(start.x, start.y)
       ctx.lineTo(end.x, end.y)
-      ctx.strokeStyle = isHovered ? 'rgba(212, 169, 66, 0.7)' : 'rgba(139, 119, 90, 0.25)'
+      ctx.strokeStyle = isHovered ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.15)'
       ctx.lineWidth = isHovered ? 2 : 1
       ctx.stroke()
 
@@ -306,14 +306,14 @@ export function KnowledgeGraph({
         const midY = (start.y + end.y) / 2
 
         const fontSize = Math.max(9, 11 / globalScale)
-        ctx.font = `${fontSize}px Crimson Pro, Georgia, serif`
+        ctx.font = `${fontSize}px Tomorrow, system-ui, sans-serif`
 
         const labelText = link.label
         const textWidth = ctx.measureText(labelText).width
         const padding = 3
 
-        // Background - dark parchment
-        ctx.fillStyle = 'rgba(42, 35, 24, 0.95)'
+        // Background - dark
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.95)'
         ctx.fillRect(
           midX - textWidth / 2 - padding,
           midY - fontSize / 2 - padding / 2,
@@ -321,10 +321,10 @@ export function KnowledgeGraph({
           fontSize + padding
         )
 
-        // Text - gold/parchment
+        // Text - white
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillStyle = '#d4a942'
+        ctx.fillStyle = '#ffffff'
         ctx.fillText(labelText, midX, midY)
       }
     },
@@ -373,9 +373,9 @@ export function KnowledgeGraph({
     },
     linkDirectionalArrowLength: 4,
     linkDirectionalArrowRelPos: 0.9,
-    backgroundColor: '#2a2318',
+    backgroundColor: '#000000',
     nodeColor: (node: any) => getTypeColor(node.type),
-    linkColor: () => 'rgba(139, 119, 90, 0.4)',
+    linkColor: () => 'rgba(255, 255, 255, 0.2)',
     ...currentPhysics.config,
   }
 
@@ -391,16 +391,16 @@ export function KnowledgeGraph({
   return (
     <div
       id="knowledge-graph-container"
-      className="w-full h-full bg-[#2a2318] relative border-2 border-[hsl(30_25%_30%)]"
+      className="w-full h-full bg-background relative border border-border"
     >
       {/* Controls */}
       <div className="absolute top-3 right-3 z-10 flex gap-2">
         {/* View Mode Toggle (2D/3D) */}
-        <div className="flex bg-[#3d3426] rounded-md border border-[#6b5a45] overflow-hidden">
+        <div className="flex bg-card rounded-none border border-border overflow-hidden">
           <Button
             variant="ghost"
             size="sm"
-            className={`rounded-none px-3 ${viewMode === '2d' ? 'bg-[#4d4436] text-[#e8dcc8]' : 'text-[#8a7a66] hover:text-[#e8dcc8]'}`}
+            className={`rounded-none px-3 ${viewMode === '2d' ? 'bg-accent text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setViewMode('2d')}
           >
             <Network className="h-4 w-4 mr-1" />
@@ -409,7 +409,7 @@ export function KnowledgeGraph({
           <Button
             variant="ghost"
             size="sm"
-            className={`rounded-none px-3 ${viewMode === '3d' ? 'bg-[#4d4436] text-[#e8dcc8]' : 'text-[#8a7a66] hover:text-[#e8dcc8]'}`}
+            className={`rounded-none px-3 ${viewMode === '3d' ? 'bg-accent text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setViewMode('3d')}
           >
             <Box className="h-4 w-4 mr-1" />
@@ -424,26 +424,26 @@ export function KnowledgeGraph({
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-[#3d3426] border-[#6b5a45] text-[#e8dcc8] hover:bg-[#4d4436]"
+                className="bg-card border-border text-foreground hover:bg-accent"
               >
                 {currentLayout.icon}
                 <span className="ml-2">{currentLayout.label}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#3d3426] border-[#6b5a45]">
-              <DropdownMenuLabel className="text-[#b8a88a]">Layout</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[#6b5a45]" />
+            <DropdownMenuContent className="bg-card border-border">
+              <DropdownMenuLabel className="text-muted-foreground">Layout</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-border" />
               {layoutOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.mode}
                   onClick={() => setLayoutMode(option.mode)}
-                  className={`text-[#e8dcc8] focus:bg-[#4d4436] focus:text-[#e8dcc8] ${
-                    layoutMode === option.mode ? 'bg-[#4d4436]' : ''
+                  className={`text-foreground focus:bg-accent focus:text-foreground ${
+                    layoutMode === option.mode ? 'bg-accent' : ''
                   }`}
                 >
                   {option.icon}
                   <span className="ml-2">{option.label}</span>
-                  <span className="ml-auto text-xs text-[#8a7a66]">{option.description}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">{option.description}</span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -456,21 +456,21 @@ export function KnowledgeGraph({
             <Button
               variant="outline"
               size="sm"
-              className="bg-[#3d3426] border-[#6b5a45] text-[#e8dcc8] hover:bg-[#4d4436]"
+              className="bg-card border-border text-foreground hover:bg-accent"
             >
               {currentPhysics.icon}
               <span className="ml-2">{currentPhysics.label}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-[#3d3426] border-[#6b5a45]">
-            <DropdownMenuLabel className="text-[#b8a88a]">Physics</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#6b5a45]" />
+          <DropdownMenuContent className="bg-card border-border">
+            <DropdownMenuLabel className="text-muted-foreground">Physics</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-border" />
             {physicsOptions.map((option) => (
               <DropdownMenuItem
                 key={option.preset}
                 onClick={() => setPhysicsPreset(option.preset)}
-                className={`text-[#e8dcc8] focus:bg-[#4d4436] focus:text-[#e8dcc8] ${
-                  physicsPreset === option.preset ? 'bg-[#4d4436]' : ''
+                className={`text-foreground focus:bg-accent focus:text-foreground ${
+                  physicsPreset === option.preset ? 'bg-accent' : ''
                 }`}
               >
                 {option.icon}
@@ -509,8 +509,8 @@ export function KnowledgeGraph({
       {viewMode === '3d' && (
         <ForceGraph3D
           {...commonProps}
-          nodeLabel={(node: any) => `<div style="background: rgba(42,35,24,0.95); color: #e8dcc8; padding: 4px 8px; border-radius: 4px; font-family: Cinzel, serif;">${node.name}<br/><span style="color: #b8a88a; font-size: 0.8em; font-family: Crimson Pro, serif;">${node.type?.replace('_', ' ')}</span></div>`}
-          linkLabel={(link: any) => `<div style="background: rgba(42,35,24,0.95); color: #d4a942; padding: 4px 8px; border-radius: 4px;">${link.label || link.type}</div>`}
+          nodeLabel={(node: any) => `<div style="background: rgba(0,0,0,0.95); color: #ffffff; padding: 4px 8px; font-family: Tektur, sans-serif;">${node.name}<br/><span style="color: #999999; font-size: 0.8em; font-family: Tomorrow, sans-serif;">${node.type?.replace('_', ' ')}</span></div>`}
+          linkLabel={(link: any) => `<div style="background: rgba(0,0,0,0.95); color: #ffffff; padding: 4px 8px;">${link.label || link.type}</div>`}
           nodeOpacity={0.9}
           linkOpacity={0.4}
           linkWidth={1.5}
@@ -523,27 +523,21 @@ export function KnowledgeGraph({
         />
       )}
 
-      {/* Tooltip for hovered node - parchment style (2D only) */}
+      {/* Tooltip for hovered node (2D only) */}
       {viewMode === '2d' && tooltipNode && (
-        <div className="absolute top-4 left-4 bg-[#3d3426] border-2 border-[#6b5a45] rounded-sm p-3 pointer-events-none shadow-lg">
-          <p
-            className="font-medium text-[#e8dcc8]"
-            style={{ fontFamily: 'Cinzel, serif' }}
-          >
+        <div className="absolute top-4 left-4 bg-card border border-border p-3 pointer-events-none shadow-lg">
+          <p className="font-medium text-foreground font-heading">
             {data.nodes.find((n) => n.id === tooltipNode)?.name}
           </p>
-          <p
-            className="text-sm text-[#b8a88a] capitalize"
-            style={{ fontFamily: 'Crimson Pro, serif' }}
-          >
+          <p className="text-sm text-muted-foreground capitalize">
             {data.nodes.find((n) => n.id === tooltipNode)?.type?.replace('_', ' ')}
           </p>
-          <p className="text-xs text-[#8a7a66] mt-1">Click to view, right-click to center</p>
+          <p className="text-xs text-muted-foreground mt-1">Click to view, right-click to center</p>
         </div>
       )}
 
       {/* Help text */}
-      <div className="absolute bottom-3 left-3 text-xs text-[#6b5a45]">
+      <div className="absolute bottom-3 left-3 text-xs text-muted-foreground">
         {viewMode === '2d' ? 'Scroll to zoom • Drag to pan' : 'Drag to rotate • Scroll to zoom'}
       </div>
     </div>

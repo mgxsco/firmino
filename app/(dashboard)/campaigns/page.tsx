@@ -6,7 +6,7 @@ import { eq, or, desc } from 'drizzle-orm'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Users, BookOpen } from 'lucide-react'
+import { Plus, Users, Sparkles } from 'lucide-react'
 import { ensureCampaignLanguageColumn, ensureCampaignSettingsColumn, ensureCampaignMembersJoinedAt } from '@/lib/db/migrations'
 import { ImportDialog } from '@/components/campaigns/import-dialog'
 
@@ -58,15 +58,15 @@ export default async function CampaignsPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Your Campaigns</h1>
-          <p className="text-muted-foreground mt-1">Manage your D&D adventures</p>
+          <h1 className="text-3xl font-bold">Your Workspaces</h1>
+          <p className="text-muted-foreground mt-1">Organize your ideas and projects</p>
         </div>
         <div className="flex items-center gap-2">
           <ImportDialog />
           <Link href="/campaigns/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              New Campaign
+              New Workspace
             </Button>
           </Link>
         </div>
@@ -75,15 +75,15 @@ export default async function CampaignsPage() {
       {allCampaigns.length === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
-            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No campaigns yet</h3>
+            <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No workspaces yet</h3>
             <p className="text-muted-foreground mb-4">
-              Create your first campaign to start documenting your adventures.
+              Create your first workspace to start organizing your ideas.
             </p>
             <Link href="/campaigns/new">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Create Campaign
+                Create Workspace
               </Button>
             </Link>
           </CardContent>

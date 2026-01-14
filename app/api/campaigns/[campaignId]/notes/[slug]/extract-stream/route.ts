@@ -110,11 +110,17 @@ export async function POST(
 
         // Get campaign settings for extraction
         const campaignSettings = getCampaignSettings((campaign as any).settings)
+
+        // Use smaller chunks for faster processing within Vercel timeout
+        // Cap at 2000 chars to ensure each chunk processes quickly
+        const chunkSize = Math.min(campaignSettings.extraction.chunkSize, 2000)
+
         const extractionSettings: ExtractionSettings = {
-          chunkSize: campaignSettings.extraction.chunkSize,
+          chunkSize,
           aggressiveness: campaignSettings.extraction.aggressiveness,
           confidenceThreshold: campaignSettings.extraction.confidenceThreshold,
           enableRelationships: campaignSettings.extraction.enableRelationships,
+          extractionModel: campaignSettings.model.extractionModel,
           customPrompts: {
             extractionConservativePrompt: campaignSettings.prompts.extractionConservativePrompt,
             extractionBalancedPrompt: campaignSettings.prompts.extractionBalancedPrompt,
@@ -124,7 +130,7 @@ export async function POST(
 
         sendEvent('progress', {
           stage: 'starting',
-          message: `Starting AI extraction (${extractionSettings.aggressiveness} mode)...`,
+          message: `Starting AI extraction (${extractionSettings.aggressiveness} mode, ${campaignSettings.model.extractionModel})...`,
           mode: extractionSettings.aggressiveness,
         })
 
@@ -144,17 +150,14 @@ export async function POST(
           },
           {
             ...extractionSettings,
-            maxChunks: 6, // Reduced for Vercel timeout
-            parallelBatchSize: 1, // Sequential for stability
+            maxChunks: 5, // Limit chunks to stay within timeout
+            parallelBatchSize: 2, // Process 2 chunks in parallel
           }
         )
 
-        // Timeout after 45 seconds (Vercel Pro has 60s limit, leave margin)
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Extraction timed out - note may be too large')), 45000)
-        )
-
-        const extraction = await Promise.race([extractionPromise, timeoutPromise])
+        // Note: Vercel Hobby plan has 10s limit, Pro has 60s
+        // We'll try to complete quickly and return partial results if needed
+        const extraction = await extractionPromise
 
         sendEvent('progress', {
           stage: 'processing',

@@ -77,7 +77,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>Join the D&D Campaign Manager</CardDescription>
+          <CardDescription>Join Firmino</CardDescription>
         </CardHeader>
         <form onSubmit={handleRegister}>
           <CardContent className="space-y-4">
@@ -86,7 +86,7 @@ export default function RegisterPage() {
               <Input
                 id="name"
                 type="text"
-                placeholder="The Adventurer"
+                placeholder="Your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required

@@ -195,7 +195,7 @@ export default function CampaignHomePage() {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                <h1 className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: 'Cinzel, serif' }}>
+                <h1 className="text-2xl sm:text-3xl font-bold">
                   {campaign.name}
                 </h1>
                 <Badge variant={isDM ? 'default' : 'secondary'} className="flex items-center gap-1">
@@ -278,7 +278,7 @@ export default function CampaignHomePage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Scroll className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+              <Scroll className="h-5 w-5 text-foreground" />
               Quick Actions
             </CardTitle>
             <CardDescription>Common tasks for your campaign</CardDescription>
@@ -352,7 +352,7 @@ function StatCard({
     <Card className="hover:border-primary/50 transition-colors cursor-pointer">
       <CardContent className="pt-6">
         <div className="flex items-center gap-3">
-          <div className="text-[hsl(45_80%_45%)]">{icon}</div>
+          <div className="text-foreground">{icon}</div>
           <div>
             <p className="text-2xl font-bold">{value}</p>
             <p className="text-sm text-muted-foreground">{label}</p>

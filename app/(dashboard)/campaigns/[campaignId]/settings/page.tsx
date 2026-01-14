@@ -28,10 +28,10 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { CampaignSidebar } from '@/components/campaigns/campaign-sidebar'
 import { useToast } from '@/components/ui/use-toast'
-import { Save, Trash2, RefreshCw, Loader2, Globe, Cog, Search, Network, AlertTriangle, MessageSquare, RotateCcw, Download } from 'lucide-react'
+import { Save, Trash2, RefreshCw, Loader2, Globe, Cog, Search, Network, AlertTriangle, MessageSquare, RotateCcw, Download, Sparkles } from 'lucide-react'
 import { ExportDialog } from '@/components/campaigns/export-dialog'
-import { getCampaignSettings, DEFAULT_SETTINGS, AGGRESSIVENESS_OPTIONS, CHUNK_SIZE_OPTIONS, LINK_LABEL_OPTIONS, DEFAULT_PROMPTS } from '@/lib/campaign-settings'
-import type { CampaignSettings } from '@/lib/db/schema'
+import { getCampaignSettings, DEFAULT_SETTINGS, AGGRESSIVENESS_OPTIONS, CHUNK_SIZE_OPTIONS, LINK_LABEL_OPTIONS, DEFAULT_PROMPTS, CHAT_MODEL_OPTIONS, EXTRACTION_MODEL_OPTIONS } from '@/lib/campaign-settings'
+import type { CampaignSettings, ClaudeModel } from '@/lib/db/schema'
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },
@@ -140,6 +140,16 @@ export default function SettingsPage() {
     }))
   }
 
+  const updateModelSetting = <K extends keyof typeof settings.model>(
+    key: K,
+    value: typeof settings.model[K]
+  ) => {
+    setSettings((prev) => ({
+      ...prev,
+      model: { ...prev.model, [key]: value },
+    }))
+  }
+
   const resetPromptToDefault = (key: keyof typeof DEFAULT_PROMPTS) => {
     updatePromptsSetting(key, DEFAULT_PROMPTS[key])
   }
@@ -241,7 +251,7 @@ export default function SettingsPage() {
 
       <div className="flex-1 min-w-0 max-w-3xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold">Campaign Settings</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">Workspace Settings</h1>
           <Button onClick={handleSave} disabled={saving} size="sm" className="sm:size-default">
             <Save className="h-4 w-4 mr-2" />
             {saving ? 'Saving...' : 'Save All'}
@@ -249,8 +259,9 @@ export default function SettingsPage() {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="w-full overflow-x-auto flex sm:grid sm:grid-cols-6 scrollbar-hide">
+          <TabsList className="w-full overflow-x-auto flex sm:grid sm:grid-cols-7 scrollbar-hide">
             <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="model">AI Model</TabsTrigger>
             <TabsTrigger value="extraction">Extraction</TabsTrigger>
             <TabsTrigger value="search">Search</TabsTrigger>
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
@@ -266,11 +277,11 @@ export default function SettingsPage() {
                   <Globe className="h-5 w-5" />
                   General Settings
                 </CardTitle>
-                <CardDescription>Basic campaign information</CardDescription>
+                <CardDescription>Basic workspace information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Campaign Name</Label>
+                  <Label htmlFor="name">Workspace Name</Label>
                   <Input
                     id="name"
                     value={name}
@@ -287,7 +298,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="language">Campaign Language</Label>
+                  <Label htmlFor="language">Workspace Language</Label>
                   <Select value={language} onValueChange={setLanguage}>
                     <SelectTrigger className="w-full">
                       <SelectValue />
@@ -313,10 +324,126 @@ export default function SettingsPage() {
                   <Download className="h-5 w-5" />
                   Data Management
                 </CardTitle>
-                <CardDescription>Export or backup your campaign data</CardDescription>
+                <CardDescription>Export or backup your workspace data</CardDescription>
               </CardHeader>
               <CardContent>
                 <ExportDialog campaignId={campaignId} campaignName={name} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* AI Model Tab */}
+          <TabsContent value="model">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  AI Model Settings
+                </CardTitle>
+                <CardDescription>
+                  Configure which AI models to use and their parameters
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Chat Model */}
+                <div className="space-y-3">
+                  <Label>Chat Model</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {CHAT_MODEL_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => updateModelSetting('chatModel', option.value)}
+                        className={`p-3 border text-left transition-colors ${
+                          settings.model.chatModel === option.value
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <p className="font-medium">{option.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {option.description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    The model used for answering questions in the chat.
+                  </p>
+                </div>
+
+                {/* Extraction Model */}
+                <div className="space-y-3">
+                  <Label>Extraction Model</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {EXTRACTION_MODEL_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => updateModelSetting('extractionModel', option.value)}
+                        className={`p-3 border text-left transition-colors ${
+                          settings.model.extractionModel === option.value
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <p className="font-medium">{option.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {option.description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    The model used for extracting entities from documents.
+                  </p>
+                </div>
+
+                {/* Temperature */}
+                <div className="space-y-3 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <Label>Temperature</Label>
+                    <span className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
+                      {settings.model.temperature.toFixed(1)}
+                    </span>
+                  </div>
+                  <Slider
+                    value={[settings.model.temperature]}
+                    onValueChange={([v]) => updateModelSetting('temperature', v)}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0.0 (focused)</span>
+                    <span>1.0 (creative)</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Higher values make output more random, lower values more deterministic.
+                  </p>
+                </div>
+
+                {/* Max Tokens */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Max Response Tokens</Label>
+                    <span className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
+                      {settings.model.maxTokens}
+                    </span>
+                  </div>
+                  <Slider
+                    value={[settings.model.maxTokens]}
+                    onValueChange={([v]) => updateModelSetting('maxTokens', v)}
+                    min={256}
+                    max={4096}
+                    step={128}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>256 (short)</span>
+                    <span>4096 (long)</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Maximum length of AI responses in the chat.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -496,13 +623,13 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                {/* Player Access */}
+                {/* Collaborator Access */}
                 <div className="space-y-4 pt-4 border-t">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Enable Player Chat Access</Label>
+                      <Label>Enable Collaborator Chat Access</Label>
                       <p className="text-sm text-muted-foreground">
-                        Allow players to use the AI chat (they won&apos;t see DM-only content)
+                        Allow collaborators to use the AI chat (they won&apos;t see private content)
                       </p>
                     </div>
                     <Switch
@@ -571,7 +698,7 @@ export default function SettingsPage() {
                     placeholder="Enter the system prompt for the AI chat..."
                   />
                   <p className="text-sm text-muted-foreground">
-                    This prompt instructs the AI how to respond to questions about your campaign.
+                    This prompt instructs the AI how to respond to questions about your workspace.
                   </p>
                 </div>
 
@@ -730,13 +857,13 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                {/* Default DM Only */}
+                {/* Default Private */}
                 <div className="space-y-4 pt-4 border-t">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Default New Entities to DM-Only</Label>
+                      <Label>Default New Entities to Private</Label>
                       <p className="text-sm text-muted-foreground">
-                        Newly extracted entities will be hidden from players by default
+                        Newly extracted entities will be hidden from collaborators by default
                       </p>
                     </div>
                     <Switch
@@ -758,7 +885,7 @@ export default function SettingsPage() {
                   Danger Zone
                 </CardTitle>
                 <CardDescription>
-                  Irreversible actions for your campaign
+                  Irreversible actions for your workspace
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -766,14 +893,14 @@ export default function SettingsPage() {
                   <DialogTrigger asChild>
                     <Button variant="destructive">
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Campaign
+                      Delete Workspace
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Are you sure?</DialogTitle>
                       <DialogDescription>
-                        This will permanently delete the campaign &quot;{campaign?.name}&quot; and all
+                        This will permanently delete the workspace &quot;{campaign?.name}&quot; and all
                         its entities, documents, and relationships. This action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>

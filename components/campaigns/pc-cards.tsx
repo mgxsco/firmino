@@ -76,7 +76,7 @@ const CharacterCard = memo(function CharacterCard({
             <p className="font-medium truncate group-hover:text-primary transition-colors">
               {character.name}
             </p>
-            <Shield className="h-3.5 w-3.5 text-[hsl(45_80%_45%)] shrink-0" />
+            <Shield className="h-3.5 w-3.5 text-foreground shrink-0" />
           </div>
           {getBriefDescription(character.content) && (
             <p className="text-xs text-muted-foreground truncate">
@@ -119,7 +119,7 @@ export function PCCards({ campaignId }: PCCardsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Users className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Users className="h-5 w-5 text-foreground" />
             The Party
           </CardTitle>
         </CardHeader>
@@ -137,7 +137,7 @@ export function PCCards({ campaignId }: PCCardsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Users className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+            <Users className="h-5 w-5 text-foreground" />
             The Party
           </CardTitle>
           <CardDescription>Player characters in your campaign</CardDescription>
@@ -157,7 +157,7 @@ export function PCCards({ campaignId }: PCCardsProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <Users className="h-5 w-5 text-[hsl(45_80%_45%)]" />
+          <Users className="h-5 w-5 text-foreground" />
           The Party
         </CardTitle>
         <CardDescription>{characters.length} adventurer{characters.length !== 1 ? 's' : ''}</CardDescription>

@@ -1,22 +1,22 @@
 import {
-  Swords,
-  Castle,
-  Gem,
-  ScrollText,
-  Flag,
-  BookOpen,
-  Crown,
+  Palette,
+  User,
+  Image,
+  Lightbulb,
+  Briefcase,
+  Sparkles,
+  CheckSquare,
+  Target,
+  FolderOpen,
+  FileText,
+  Heart,
   Layers,
-  Skull,
-  Wand2,
-  Sun,
-  Calendar,
-  Scroll,
+  PenTool,
 } from 'lucide-react'
 
 /**
  * Centralized entity type color definitions
- * Single source of truth for all entity type styling
+ * MGXS monochrome palette with subtle differentiation
  */
 export const ENTITY_TYPE_COLORS: Record<string, {
   bg: string
@@ -24,104 +24,104 @@ export const ENTITY_TYPE_COLORS: Record<string, {
   border: string
   hex: string
 }> = {
-  npc: {
-    bg: 'bg-blue-500/10',
-    text: 'text-blue-500',
-    border: 'border-blue-500/20',
-    hex: '#3b82f6',
+  artwork: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground',
+    border: 'border-foreground/20',
+    hex: '#ffffff',
   },
-  location: {
-    bg: 'bg-green-500/10',
-    text: 'text-green-500',
-    border: 'border-green-500/20',
-    hex: '#22c55e',
+  character: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/90',
+    border: 'border-foreground/15',
+    hex: '#e5e5e5',
   },
-  item: {
-    bg: 'bg-amber-500/10',
-    text: 'text-amber-500',
-    border: 'border-amber-500/20',
-    hex: '#f59e0b',
+  reference: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/80',
+    border: 'border-foreground/15',
+    hex: '#d4d4d4',
   },
-  quest: {
-    bg: 'bg-purple-500/10',
-    text: 'text-purple-500',
-    border: 'border-purple-500/20',
-    hex: '#a855f7',
+  technique: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/70',
+    border: 'border-foreground/15',
+    hex: '#a3a3a3',
   },
-  faction: {
-    bg: 'bg-red-500/10',
-    text: 'text-red-500',
-    border: 'border-red-500/20',
-    hex: '#ef4444',
+  client: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/90',
+    border: 'border-foreground/15',
+    hex: '#fafafa',
   },
-  lore: {
-    bg: 'bg-cyan-500/10',
-    text: 'text-cyan-500',
-    border: 'border-cyan-500/20',
-    hex: '#06b6d4',
+  style: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/80',
+    border: 'border-foreground/15',
+    hex: '#d4d4d4',
   },
-  session: {
-    bg: 'bg-pink-500/10',
-    text: 'text-pink-500',
-    border: 'border-pink-500/20',
-    hex: '#ec4899',
+  idea: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground',
+    border: 'border-foreground/20',
+    hex: '#ffffff',
   },
-  player_character: {
-    bg: 'bg-yellow-500/10',
-    text: 'text-yellow-500',
-    border: 'border-yellow-500/20',
-    hex: '#eab308',
+  task: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/70',
+    border: 'border-foreground/15',
+    hex: '#a3a3a3',
+  },
+  milestone: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/80',
+    border: 'border-foreground/15',
+    hex: '#d4d4d4',
+  },
+  asset: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/70',
+    border: 'border-foreground/15',
+    hex: '#a3a3a3',
+  },
+  note: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/60',
+    border: 'border-foreground/10',
+    hex: '#737373',
+  },
+  inspiration: {
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/90',
+    border: 'border-foreground/15',
+    hex: '#e5e5e5',
   },
   freeform: {
-    bg: 'bg-gray-500/10',
-    text: 'text-gray-500',
-    border: 'border-gray-500/20',
-    hex: '#6b7280',
-  },
-  creature: {
-    bg: 'bg-lime-500/10',
-    text: 'text-lime-500',
-    border: 'border-lime-500/20',
-    hex: '#84cc16',
-  },
-  spell: {
-    bg: 'bg-violet-500/10',
-    text: 'text-violet-500',
-    border: 'border-violet-500/20',
-    hex: '#8b5cf6',
-  },
-  deity: {
-    bg: 'bg-amber-400/10',
-    text: 'text-amber-400',
-    border: 'border-amber-400/20',
-    hex: '#fbbf24',
-  },
-  event: {
-    bg: 'bg-sky-500/10',
-    text: 'text-sky-500',
-    border: 'border-sky-500/20',
-    hex: '#0ea5e9',
+    bg: 'bg-foreground/5',
+    text: 'text-foreground/50',
+    border: 'border-foreground/10',
+    hex: '#525252',
   },
 }
 
 /**
- * Entity type icons mapping - Fantasy themed
+ * Entity type icons mapping
  */
 export const ENTITY_TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   all: Layers,
-  npc: Swords,           // Combat/adventure themed
-  location: Castle,       // Medieval castle
-  item: Gem,             // Treasure/artifact
-  quest: ScrollText,     // Quest scroll
-  faction: Flag,         // Political banner
-  lore: BookOpen,        // Ancient tome
-  session: BookOpen,     // Session notes
-  player_character: Crown, // Heroic crown
-  freeform: Scroll,      // Generic scroll
-  creature: Skull,       // Monster/creature
-  spell: Wand2,          // Magic wand
-  deity: Sun,            // Divine radiance
-  event: Calendar,       // Timeline event
+  artwork: Palette,
+  character: User,
+  reference: Image,
+  technique: PenTool,
+  client: Briefcase,
+  style: Sparkles,
+  idea: Lightbulb,
+  task: CheckSquare,
+  milestone: Target,
+  asset: FolderOpen,
+  note: FileText,
+  inspiration: Heart,
+  freeform: FileText,
 }
 
 /**
@@ -129,19 +129,19 @@ export const ENTITY_TYPE_ICONS: Record<string, React.ComponentType<{ className?:
  */
 export const ENTITY_TYPE_LABELS: Record<string, string> = {
   all: 'All',
-  npc: 'NPCs',
-  location: 'Locations',
-  item: 'Items',
-  quest: 'Quests',
-  faction: 'Factions',
-  lore: 'Lore',
-  session: 'Sessions',
-  player_character: 'PCs',
+  artwork: 'Artworks',
+  character: 'Characters',
+  reference: 'References',
+  technique: 'Techniques',
+  client: 'Clients',
+  style: 'Styles',
+  idea: 'Ideas',
+  task: 'Tasks',
+  milestone: 'Milestones',
+  asset: 'Assets',
+  note: 'Notes',
+  inspiration: 'Inspiration',
   freeform: 'Other',
-  creature: 'Creatures',
-  spell: 'Spells',
-  deity: 'Deities',
-  event: 'Events',
 }
 
 /**

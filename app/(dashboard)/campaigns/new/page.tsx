@@ -61,23 +61,23 @@ export default function NewCampaignPage() {
     <div className="max-w-2xl mx-auto">
       <Link href="/campaigns" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to campaigns
+        Back to workspaces
       </Link>
 
       <Card>
         <CardHeader>
-          <CardTitle>Create New Campaign</CardTitle>
+          <CardTitle>Create New Workspace</CardTitle>
           <CardDescription>
-            Start a new D&D campaign and invite your players.
+            Start a new workspace to organize your ideas and projects.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Campaign Name</Label>
+              <Label htmlFor="name">Workspace Name</Label>
               <Input
                 id="name"
-                placeholder="The Lost Mines of Phandelver"
+                placeholder="My Art Project"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -87,7 +87,7 @@ export default function NewCampaignPage() {
               <Label htmlFor="description">Description (optional)</Label>
               <Textarea
                 id="description"
-                placeholder="A classic adventure for new players..."
+                placeholder="A collection of ideas for..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
@@ -95,7 +95,7 @@ export default function NewCampaignPage() {
             </div>
             <div className="flex gap-4">
               <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Campaign'}
+                {loading ? 'Creating...' : 'Create Workspace'}
               </Button>
               <Link href="/campaigns">
                 <Button type="button" variant="outline">

@@ -89,8 +89,23 @@ export const languageEnum = [
   'en', 'pt-BR', 'pt', 'es', 'fr', 'de', 'it', 'nl', 'pl', 'ru', 'ja', 'ko', 'zh'
 ] as const
 
+// Available Claude models
+export const claudeModels = [
+  'claude-sonnet-4-20250514',
+  'claude-3-5-haiku-20241022',
+  'claude-opus-4-20250514',
+] as const
+
+export type ClaudeModel = (typeof claudeModels)[number]
+
 // Campaign settings type
 export interface CampaignSettings {
+  model?: {
+    chatModel?: ClaudeModel
+    extractionModel?: ClaudeModel
+    temperature?: number      // 0.0 - 1.0
+    maxTokens?: number        // 256 - 4096
+  }
   extraction?: {
     aggressiveness?: 'conservative' | 'balanced' | 'obsessive'
     chunkSize?: number
