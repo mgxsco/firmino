@@ -257,7 +257,7 @@ export const CHAT_MODEL_OPTIONS = [
     description: 'Best reasoning, highest quality',
   },
   {
-    value: 'gemini-2.5-flash-preview-05-20' as const,
+    value: 'gemini-2.5-flash' as const,
     label: 'Gemini 2.5 Flash',
     description: 'Google AI, fast and capable',
   },
@@ -278,7 +278,7 @@ export const EXTRACTION_MODEL_OPTIONS = [
     description: 'More accurate, slower processing',
   },
   {
-    value: 'gemini-2.5-flash-preview-05-20' as const,
+    value: 'gemini-2.5-flash' as const,
     label: 'Gemini 2.5 Flash',
     description: 'Google AI, fast extraction',
   },
