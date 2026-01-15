@@ -567,9 +567,9 @@ export async function runExtractionPipeline(
     const batchPromises = batchChunks.map(async (chunk, idx) => {
       const chunkIndex = batchStart + idx
       try {
-        // Timeout for individual chunk (30 seconds - Haiku is fast but network can be slow)
+        // Timeout for individual chunk (45 seconds - allows for API queue time and network latency)
         const chunkTimeout = new Promise<ChunkExtraction>((_, reject) =>
-          setTimeout(() => reject(new Error(`Chunk ${chunkIndex + 1} timed out`)), 30000)
+          setTimeout(() => reject(new Error(`Chunk ${chunkIndex + 1} timed out`)), 45000)
         )
 
         const extraction = await Promise.race([

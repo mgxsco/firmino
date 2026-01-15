@@ -150,8 +150,8 @@ export async function POST(
           },
           {
             ...extractionSettings,
-            maxChunks: 5, // Limit chunks to stay within timeout
-            parallelBatchSize: 2, // Process 2 chunks in parallel
+            maxChunks: 4, // Limit chunks to stay within timeout
+            parallelBatchSize: 4, // Process all chunks in parallel (single batch)
           }
         )
 
