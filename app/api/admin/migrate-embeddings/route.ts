@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { sql } from '@vercel/postgres'
+import { sql } from '@/lib/db'
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: 'Migration completed. The note_embeddings table now uses 1024-dimension vectors. Please reindex your notes.',
-      columnInfo: result.rows[0],
+      columnInfo: result[0],
     })
   } catch (error) {
     console.error('[Migration] Error:', error)

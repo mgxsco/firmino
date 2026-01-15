@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { sql } from '@vercel/postgres'
+import { sql } from '@/lib/db'
 
 /**
  * Migration to create new Obsidian-style knowledge graph tables
@@ -124,7 +124,17 @@ export async function POST(request: Request) {
     `
     results.push('Created entity_versions table')
 
-    // 7. Add full-text search to entities
+    // 7. Add session_number column to entities
+    console.log('[Migration V2] Adding session_number column...')
+    try {
+      await sql`ALTER TABLE entities ADD COLUMN IF NOT EXISTS session_number INTEGER`
+      results.push('Added session_number column')
+    } catch (e) {
+      console.log('[Migration V2] session_number column already exists or failed:', e)
+      results.push('session_number: already exists or skipped')
+    }
+
+    // 8. Add full-text search to entities
     console.log('[Migration V2] Adding full-text search...')
     try {
       await sql`
@@ -185,7 +195,8 @@ export async function GET(request: Request) {
           WHERE table_name = ${table}
         ) as exists
       `
-      status[table] = result.rows[0]?.exists || false
+      // postgres-js returns array directly, not result.rows
+      status[table] = result[0]?.exists || false
     }
 
     // Count records in each table
@@ -193,8 +204,9 @@ export async function GET(request: Request) {
     for (const table of tables) {
       if (status[table]) {
         try {
-          const result = await sql.query(`SELECT COUNT(*) as count FROM ${table}`)
-          counts[table] = parseInt(result.rows[0]?.count || '0')
+          // Use unsafe for dynamic table names
+          const result = await sql.unsafe(`SELECT COUNT(*) as count FROM ${table}`)
+          counts[table] = parseInt(result[0]?.count || '0')
         } catch {
           counts[table] = 0
         }
