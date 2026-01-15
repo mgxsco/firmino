@@ -36,6 +36,11 @@ export async function POST(request: Request) {
     await sql`ALTER TABLE entities ADD COLUMN IF NOT EXISTS session_status TEXT`
     results.push('Added session_status column')
 
+    // Add player_id column for player_character entities
+    console.log('[Migration Sessions] Adding player_id column...')
+    await sql`ALTER TABLE entities ADD COLUMN IF NOT EXISTS player_id UUID REFERENCES campaign_members(id) ON DELETE SET NULL`
+    results.push('Added player_id column')
+
     console.log('[Migration Sessions] Migration completed successfully')
 
     return NextResponse.json({
