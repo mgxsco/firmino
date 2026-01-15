@@ -95,6 +95,7 @@ export const aiModels = [
   'claude-3-5-haiku-20241022',
   'claude-opus-4-20250514',
   'gemini-2.5-flash',
+  'gemini-3-flash-preview',
 ] as const
 
 export type AIModel = (typeof aiModels)[number]

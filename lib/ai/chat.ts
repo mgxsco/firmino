@@ -36,9 +36,9 @@ export async function generateChatResponse(
       sources: [],
     }
   }
-  if (provider === 'google' && !process.env.GOOGLE_API_KEY) {
+  if (provider === 'google' && !process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
     return {
-      content: 'Gemini is not configured. Please add GOOGLE_API_KEY to your environment variables.',
+      content: 'Gemini is not configured. Please add GEMINI_API_KEY to your environment variables.',
       sources: [],
     }
   }

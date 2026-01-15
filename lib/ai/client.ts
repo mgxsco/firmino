@@ -4,7 +4,7 @@ import { AIModel, getModelProvider } from '@/lib/db/schema'
 
 // Map deprecated model names to current ones
 const MODEL_ALIASES: Record<string, string> = {
-  'gemini-2.5-flash-preview-05-20': 'gemini-2.5-flash',
+  'gemini-2.5-flash-preview-05-20': 'gemini-3-flash-preview',
   'gemini-2.0-flash-exp': 'gemini-2.5-flash',
 }
 
@@ -29,11 +29,13 @@ function getAnthropicClient(): Anthropic {
 }
 
 function getGoogleClient(): GoogleGenerativeAI {
-  if (!process.env.GOOGLE_API_KEY) {
-    throw new Error('GOOGLE_API_KEY is not configured')
+  // Support both GEMINI_API_KEY and GOOGLE_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not configured')
   }
   if (!googleClient) {
-    googleClient = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
+    googleClient = new GoogleGenerativeAI(apiKey)
   }
   return googleClient
 }
