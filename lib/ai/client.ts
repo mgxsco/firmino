@@ -2,6 +2,16 @@ import Anthropic from '@anthropic-ai/sdk'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { AIModel, getModelProvider } from '@/lib/db/schema'
 
+// Map deprecated model names to current ones
+const MODEL_ALIASES: Record<string, string> = {
+  'gemini-2.5-flash-preview-05-20': 'gemini-2.5-flash',
+  'gemini-2.0-flash-exp': 'gemini-2.5-flash',
+}
+
+function normalizeModelName(model: string): string {
+  return MODEL_ALIASES[model] || model
+}
+
 // Lazy-initialize clients
 let anthropicClient: Anthropic | null = null
 let googleClient: GoogleGenerativeAI | null = null
@@ -82,8 +92,10 @@ async function generateWithClaude(options: GenerateOptions): Promise<GenerateRes
 
 async function generateWithGemini(options: GenerateOptions): Promise<GenerateResult> {
   const google = getGoogleClient()
+  // Normalize model name to handle deprecated aliases
+  const modelName = normalizeModelName(options.model)
   const model = google.getGenerativeModel({
-    model: options.model,
+    model: modelName,
     // System instruction must be a Content object
     systemInstruction: {
       role: 'user',
