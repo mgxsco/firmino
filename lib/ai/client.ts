@@ -82,7 +82,18 @@ async function generateWithClaude(options: GenerateOptions): Promise<GenerateRes
 
 async function generateWithGemini(options: GenerateOptions): Promise<GenerateResult> {
   const google = getGoogleClient()
-  const model = google.getGenerativeModel({ model: options.model })
+  const model = google.getGenerativeModel({
+    model: options.model,
+    // System instruction must be a Content object
+    systemInstruction: {
+      role: 'user',
+      parts: [{ text: options.systemPrompt }],
+    },
+    generationConfig: {
+      maxOutputTokens: options.maxTokens ?? 1024,
+      temperature: options.temperature ?? 0.7,
+    },
+  })
 
   // Build conversation history for Gemini
   // Gemini uses a different format: contents with parts
@@ -93,14 +104,9 @@ async function generateWithGemini(options: GenerateOptions): Promise<GenerateRes
 
   const lastMessage = options.messages[options.messages.length - 1]
 
-  // Start chat with system instruction
+  // Start chat with history
   const chat = model.startChat({
     history: history as any,
-    generationConfig: {
-      maxOutputTokens: options.maxTokens ?? 1024,
-      temperature: options.temperature ?? 0.7,
-    },
-    systemInstruction: options.systemPrompt,
   })
 
   const result = await chat.sendMessage(lastMessage.content)
