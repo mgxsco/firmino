@@ -135,11 +135,17 @@ export async function POST(
 
           // Get campaign settings for extraction
           const campaignSettings = getCampaignSettings((campaign as any).settings)
+
+          // Use smaller chunks for faster processing within Vercel timeout
+          // Cap at 2000 chars to ensure each chunk processes quickly
+          const chunkSize = Math.min(campaignSettings.extraction.chunkSize, 2000)
+
           const extractionSettings: ExtractionSettings = {
-            chunkSize: campaignSettings.extraction.chunkSize,
+            chunkSize,
             aggressiveness: campaignSettings.extraction.aggressiveness,
             confidenceThreshold: campaignSettings.extraction.confidenceThreshold,
             enableRelationships: campaignSettings.extraction.enableRelationships,
+            extractionModel: campaignSettings.model.extractionModel,
             customPrompts: {
               extractionConservativePrompt: campaignSettings.prompts.extractionConservativePrompt,
               extractionBalancedPrompt: campaignSettings.prompts.extractionBalancedPrompt,
@@ -149,12 +155,14 @@ export async function POST(
 
           sendEvent('progress', {
             stage: 'starting',
-            message: `Starting AI extraction (${extractionSettings.aggressiveness} mode)...`,
+            message: `Starting AI extraction (${extractionSettings.aggressiveness} mode, ${campaignSettings.model.extractionModel})...`,
             mode: extractionSettings.aggressiveness,
           })
 
-          // Run extraction pipeline with progress callback and timeout
-          const extractionPromise = runExtractionPipeline(
+          // Run extraction pipeline with progress callback
+          // Note: Vercel Hobby plan has 10s limit, Pro has 60s
+          // Individual chunks have 45s timeout, we process all in parallel
+          const extraction = await runExtractionPipeline(
             content,
             fileName,
             existingNames,
@@ -169,17 +177,10 @@ export async function POST(
             },
             {
               ...extractionSettings,
-              maxChunks: 6, // Reduced for Vercel timeout
-              parallelBatchSize: 1, // Sequential for stability
+              maxChunks: 4, // Limit chunks to stay within timeout
+              parallelBatchSize: 4, // Process all chunks in parallel (single batch)
             }
           )
-
-          // Timeout after 45 seconds (Vercel Pro has 60s limit, leave margin)
-          const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Extraction timed out - try a smaller file')), 45000)
-          )
-
-          const extraction = await Promise.race([extractionPromise, timeoutPromise])
 
           sendEvent('progress', {
             stage: 'processing',
@@ -319,17 +320,54 @@ export async function POST(
             })
           }
 
-          // Send final result
-          const response: ExtractPreviewResponse = {
+          // Send entities in batches to avoid SSE message size issues
+          const BATCH_SIZE = 20
+          const documentId = uuidv4()
+
+          // First, send metadata
+          sendEvent('result_meta', {
             success: true,
-            documentId: uuidv4(),
+            documentId,
             fileName,
-            extractedEntities: stagedEntities,
-            extractedRelationships: stagedRelationships,
-            existingEntityMatches,
+            totalEntities: stagedEntities.length,
+            totalRelationships: stagedRelationships.length,
+            totalMatches: existingEntityMatches.length,
+          })
+
+          // Send entities in batches
+          for (let i = 0; i < stagedEntities.length; i += BATCH_SIZE) {
+            const batch = stagedEntities.slice(i, i + BATCH_SIZE)
+            sendEvent('entities_batch', {
+              entities: batch,
+              batchIndex: Math.floor(i / BATCH_SIZE),
+              totalBatches: Math.ceil(stagedEntities.length / BATCH_SIZE),
+            })
           }
 
-          sendEvent('complete', response)
+          // Send relationships in batches
+          for (let i = 0; i < stagedRelationships.length; i += BATCH_SIZE) {
+            const batch = stagedRelationships.slice(i, i + BATCH_SIZE)
+            sendEvent('relationships_batch', {
+              relationships: batch,
+              batchIndex: Math.floor(i / BATCH_SIZE),
+              totalBatches: Math.ceil(stagedRelationships.length / BATCH_SIZE),
+            })
+          }
+
+          // Send matches
+          if (existingEntityMatches.length > 0) {
+            sendEvent('matches', { matches: existingEntityMatches })
+          }
+
+          // Final complete signal
+          sendEvent('complete', {
+            success: true,
+            documentId,
+            entityCount: stagedEntities.length,
+            relationshipCount: stagedRelationships.length,
+            matchCount: existingEntityMatches.length,
+          })
+
           controller.close()
         } catch (error) {
           console.error('[Extract-Stream] Error:', error)

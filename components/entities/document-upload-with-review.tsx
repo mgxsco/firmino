@@ -160,6 +160,10 @@ export function DocumentUploadWithReview({ campaignId }: DocumentUploadWithRevie
     setProgressSteps([])
     setExtractionProgress(null)
     setDiscoveredEntities([])
+    // Reset entities and relationships for batched SSE accumulation
+    setEntities([])
+    setRelationships([])
+    setExistingMatches([])
 
     // Read file content for later commit
     const buffer = await file.arrayBuffer()
@@ -230,17 +234,37 @@ export function DocumentUploadWithReview({ campaignId }: DocumentUploadWithRevie
                   ])
                   break
 
+                case 'result_meta':
+                  // Metadata about the extraction - prepare for batched results
+                  setProgressSteps((prev) => [
+                    ...prev,
+                    `Receiving ${data.totalEntities} entities...`,
+                  ])
+                  break
+
+                case 'entities_batch':
+                  // Batched entities - accumulate them
+                  setEntities((prev) => [...prev, ...data.entities])
+                  break
+
+                case 'relationships_batch':
+                  // Batched relationships - accumulate them
+                  setRelationships((prev) => [...prev, ...data.relationships])
+                  break
+
+                case 'matches':
+                  // Existing entity matches
+                  setExistingMatches(data.matches)
+                  break
+
                 case 'error':
                   throw new Error(data.message)
 
                 case 'complete':
-                  const result = data as ExtractPreviewResponse
-                  setEntities(result.extractedEntities)
-                  setRelationships(result.extractedRelationships)
-                  setExistingMatches(result.existingEntityMatches)
+                  // Final completion signal
                   setProgressSteps((prev) => [
                     ...prev,
-                    `Extraction complete: ${result.extractedEntities.length} entities`,
+                    `Extraction complete: ${data.entityCount} entities, ${data.relationshipCount} relationships`,
                   ])
                   setPhase('review')
                   break
