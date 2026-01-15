@@ -166,6 +166,9 @@ export function NoteExtractionWithReview({
     setProgressSteps([])
     setExtractionProgress(null)
     setDiscoveredEntities([])
+    setEntities([])
+    setRelationships([])
+    setExistingMatches([])
 
     try {
       setProgressSteps((prev) => [...prev, `Starting extraction for "${noteTitle}"...`])
@@ -227,14 +230,37 @@ export function NoteExtractionWithReview({
                 case 'error':
                   throw new Error(data.message)
 
-                case 'complete':
-                  const result = data as ExtractPreviewResponse
-                  setEntities(result.extractedEntities)
-                  setRelationships(result.extractedRelationships)
-                  setExistingMatches(result.existingEntityMatches)
+                // New batched events
+                case 'result_meta':
                   setProgressSteps((prev) => [
                     ...prev,
-                    `Extraction complete: ${result.extractedEntities.length} entities`,
+                    `Receiving ${data.totalEntities} entities...`,
+                  ])
+                  break
+
+                case 'entities_batch':
+                  setEntities((prev) => [...prev, ...data.entities])
+                  break
+
+                case 'relationships_batch':
+                  setRelationships((prev) => [...prev, ...data.relationships])
+                  break
+
+                case 'matches':
+                  setExistingMatches(data.matches)
+                  break
+
+                case 'complete':
+                  // Handle both old format (full data) and new format (counts only)
+                  if (data.extractedEntities) {
+                    // Old format - set directly
+                    setEntities(data.extractedEntities)
+                    setRelationships(data.extractedRelationships)
+                    setExistingMatches(data.existingEntityMatches || [])
+                  }
+                  setProgressSteps((prev) => [
+                    ...prev,
+                    `Extraction complete: ${data.entityCount || data.extractedEntities?.length || 0} entities`,
                   ])
                   setPhase('review')
                   break

@@ -297,19 +297,56 @@ export async function POST(
           })
         }
 
-        // Send final result with note metadata
-        const response: ExtractPreviewResponse & { noteId: string; noteTitle: string } = {
+        // Send entities in batches to avoid SSE message size issues
+        const BATCH_SIZE = 20
+        const documentId = uuidv4()
+
+        // First, send metadata
+        sendEvent('result_meta', {
           success: true,
-          documentId: uuidv4(), // Will be created when committed
+          documentId,
           fileName: `Note: ${note.title}`,
           noteId: note.id,
           noteTitle: note.title,
-          extractedEntities: stagedEntities,
-          extractedRelationships: stagedRelationships,
-          existingEntityMatches,
+          totalEntities: stagedEntities.length,
+          totalRelationships: stagedRelationships.length,
+          totalMatches: existingEntityMatches.length,
+        })
+
+        // Send entities in batches
+        for (let i = 0; i < stagedEntities.length; i += BATCH_SIZE) {
+          const batch = stagedEntities.slice(i, i + BATCH_SIZE)
+          sendEvent('entities_batch', {
+            entities: batch,
+            batchIndex: Math.floor(i / BATCH_SIZE),
+            totalBatches: Math.ceil(stagedEntities.length / BATCH_SIZE),
+          })
         }
 
-        sendEvent('complete', response)
+        // Send relationships in batches
+        for (let i = 0; i < stagedRelationships.length; i += BATCH_SIZE) {
+          const batch = stagedRelationships.slice(i, i + BATCH_SIZE)
+          sendEvent('relationships_batch', {
+            relationships: batch,
+            batchIndex: Math.floor(i / BATCH_SIZE),
+            totalBatches: Math.ceil(stagedRelationships.length / BATCH_SIZE),
+          })
+        }
+
+        // Send matches
+        if (existingEntityMatches.length > 0) {
+          sendEvent('matches', { matches: existingEntityMatches })
+        }
+
+        // Final complete signal
+        sendEvent('complete', {
+          success: true,
+          documentId,
+          entityCount: stagedEntities.length,
+          relationshipCount: stagedRelationships.length,
+          matchCount: existingEntityMatches.length,
+        })
+
         controller.close()
       } catch (error) {
         console.error('[Note-Extract-Stream] Error:', error)
