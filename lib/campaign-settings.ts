@@ -238,38 +238,48 @@ export const LINK_LABEL_OPTIONS = [
 ]
 
 /**
- * Available Claude models for chat
+ * Available AI models for chat
  */
 export const CHAT_MODEL_OPTIONS = [
   {
     value: 'claude-sonnet-4-20250514' as const,
-    label: 'Sonnet 4',
+    label: 'Claude Sonnet 4',
     description: 'Balanced performance and speed',
   },
   {
     value: 'claude-3-5-haiku-20241022' as const,
-    label: 'Haiku 3.5',
-    description: 'Fastest responses, lower cost',
+    label: 'Claude Haiku 3.5',
+    description: 'Fastest Claude, lower cost',
   },
   {
     value: 'claude-opus-4-20250514' as const,
-    label: 'Opus 4',
+    label: 'Claude Opus 4',
     description: 'Best reasoning, highest quality',
+  },
+  {
+    value: 'gemini-2.5-flash-preview-05-20' as const,
+    label: 'Gemini 2.5 Flash',
+    description: 'Google AI, fast and capable',
   },
 ]
 
 /**
- * Available Claude models for extraction
+ * Available AI models for extraction
  */
 export const EXTRACTION_MODEL_OPTIONS = [
   {
     value: 'claude-3-5-haiku-20241022' as const,
-    label: 'Haiku 3.5',
+    label: 'Claude Haiku 3.5',
     description: 'Fast extraction, good for large documents',
   },
   {
     value: 'claude-sonnet-4-20250514' as const,
-    label: 'Sonnet 4',
+    label: 'Claude Sonnet 4',
     description: 'More accurate, slower processing',
+  },
+  {
+    value: 'gemini-2.5-flash-preview-05-20' as const,
+    label: 'Gemini 2.5 Flash',
+    description: 'Google AI, fast extraction',
   },
 ]

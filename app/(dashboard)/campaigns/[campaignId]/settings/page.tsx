@@ -31,7 +31,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { Save, Trash2, RefreshCw, Loader2, Globe, Cog, Search, Network, AlertTriangle, MessageSquare, RotateCcw, Download, Sparkles } from 'lucide-react'
 import { ExportDialog } from '@/components/campaigns/export-dialog'
 import { getCampaignSettings, DEFAULT_SETTINGS, AGGRESSIVENESS_OPTIONS, CHUNK_SIZE_OPTIONS, LINK_LABEL_OPTIONS, DEFAULT_PROMPTS, CHAT_MODEL_OPTIONS, EXTRACTION_MODEL_OPTIONS } from '@/lib/campaign-settings'
-import type { CampaignSettings, ClaudeModel } from '@/lib/db/schema'
+import type { CampaignSettings, AIModel } from '@/lib/db/schema'
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },

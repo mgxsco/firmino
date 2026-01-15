@@ -1,23 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { searchSimilarChunks, buildContext } from './rag'
+import { generateResponse } from './client'
 import { ChatMessage, SearchResult } from '@/lib/types'
-import { getCampaignSettings, DEFAULT_SETTINGS, DEFAULT_PROMPTS } from '@/lib/campaign-settings'
+import { getCampaignSettings, DEFAULT_PROMPTS } from '@/lib/campaign-settings'
 import type { CampaignSettings } from '@/lib/db/schema'
-
-// Lazy-initialize Anthropic client to avoid build errors
-let anthropicClient: Anthropic | null = null
-
-function getAnthropic(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY is not configured')
-  }
-  if (!anthropicClient) {
-    anthropicClient = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    })
-  }
-  return anthropicClient
-}
+import { getModelProvider } from '@/lib/db/schema'
 
 export interface ChatOptions {
   isDM: boolean
@@ -31,7 +17,7 @@ export interface ChatResponse {
 }
 
 /**
- * Generate a chat response using RAG with Claude
+ * Generate a chat response using RAG with Claude or Gemini
  */
 export async function generateChatResponse(
   campaignId: string,
@@ -39,16 +25,23 @@ export async function generateChatResponse(
   history: ChatMessage[],
   options: ChatOptions
 ): Promise<ChatResponse> {
-  // Check if API key is configured
-  if (!process.env.ANTHROPIC_API_KEY) {
+  // Get campaign settings with defaults
+  const settings = getCampaignSettings(options.settings)
+  const provider = getModelProvider(settings.model.chatModel)
+
+  // Check if API key is configured for the selected provider
+  if (provider === 'anthropic' && !process.env.ANTHROPIC_API_KEY) {
     return {
       content: 'Chat is not configured. Please add ANTHROPIC_API_KEY to your environment variables.',
       sources: [],
     }
   }
-
-  // Get campaign settings with defaults
-  const settings = getCampaignSettings(options.settings)
+  if (provider === 'google' && !process.env.GOOGLE_API_KEY) {
+    return {
+      content: 'Gemini is not configured. Please add GOOGLE_API_KEY to your environment variables.',
+      sources: [],
+    }
+  }
 
   // Search for relevant chunks using campaign settings
   const chunks = await searchSimilarChunks(campaignId, userMessage, {
@@ -71,37 +64,30 @@ Campaign: ${options.campaignName || 'Unknown Campaign'}
 Context from campaign knowledge base:
 ${context}`
 
-  // Prepare messages for Claude
-  const messages: Anthropic.MessageParam[] = [
+  // Prepare messages
+  const messages = [
     // Include recent history
     ...history.slice(-10).map((msg) => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
     })),
     {
-      role: 'user',
+      role: 'user' as const,
       content: userMessage,
     },
   ]
 
-  // Generate response with Claude using campaign model settings
-  const anthropic = getAnthropic()
-  const response = await anthropic.messages.create({
+  // Generate response using unified client
+  const result = await generateResponse({
     model: settings.model.chatModel,
-    max_tokens: settings.model.maxTokens,
-    temperature: settings.model.temperature,
-    system: systemPrompt,
+    systemPrompt,
     messages,
+    maxTokens: settings.model.maxTokens,
+    temperature: settings.model.temperature,
   })
 
-  // Extract text from response
-  const textContent = response.content.find((block) => block.type === 'text')
-  const responseText = textContent?.type === 'text'
-    ? textContent.text
-    : 'I apologize, but I was unable to generate a response.'
-
   return {
-    content: responseText,
+    content: result.content || 'I apologize, but I was unable to generate a response.',
     sources: chunks,
   }
 }

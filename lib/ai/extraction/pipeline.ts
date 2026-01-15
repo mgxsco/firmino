@@ -1,6 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { CampaignSettings, ClaudeModel } from '@/lib/db/schema'
+import { CampaignSettings, AIModel, getModelProvider } from '@/lib/db/schema'
 import { getCampaignSettings, DEFAULT_PROMPTS, DEFAULT_SETTINGS } from '@/lib/campaign-settings'
+import { generateSimple } from '@/lib/ai/client'
 
 // ============================================
 // Types
@@ -36,17 +36,6 @@ export interface ExtractionResult {
   entities: ExtractedEntity[]
   relationships: RelationshipMention[]
   documentSummary: string
-}
-
-// ============================================
-// Anthropic Client
-// ============================================
-
-function getAnthropicClient(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY is not configured')
-  }
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 }
 
 // Language code to name mapping
@@ -192,11 +181,9 @@ async function extractFromChunk(
   language: string = 'en',
   aggressiveness: 'conservative' | 'balanced' | 'obsessive' = 'obsessive',
   customPrompts?: CustomPrompts,
-  extractionModel: ClaudeModel = DEFAULT_SETTINGS.model.extractionModel
+  extractionModel: AIModel = DEFAULT_SETTINGS.model.extractionModel
 ): Promise<ChunkExtraction> {
   console.log(`[Extraction] Processing chunk ${chunkIndex + 1}/${totalChunks} (${content.length} chars, lang: ${language}, mode: ${aggressiveness}, model: ${extractionModel})`)
-
-  const anthropic = getAnthropicClient()
 
   const languageInstruction = language !== 'en'
     ? `IMPORTANT: The content is in ${getLanguageName(language)}. Extract entity names as they appear in the original language, but you may provide descriptions in ${getLanguageName(language)} as well.`
@@ -204,23 +191,15 @@ async function extractFromChunk(
 
   const systemPrompt = getExtractionSystemPrompt(aggressiveness, languageInstruction, customPrompts)
 
-  const response = await anthropic.messages.create({
-    model: extractionModel,
-    max_tokens: 8192,
-    system: systemPrompt,
-    messages: [{
-      role: 'user',
-      content: content,
-    }],
-  })
+  // Use unified client that supports both Claude and Gemini
+  const responseText = await generateSimple(extractionModel, systemPrompt, content, 8192)
 
-  const textContent = response.content.find((block) => block.type === 'text')
-  if (!textContent || textContent.type !== 'text') {
+  if (!responseText) {
     return { entities: [], relationships: [] }
   }
 
   try {
-    let jsonStr = textContent.text.trim()
+    let jsonStr = responseText.trim()
 
     // Extract JSON from code blocks or raw
     const codeBlockMatch = jsonStr.match(/```(?:json)?[\s\n]*([\s\S]*?)```/)
@@ -504,7 +483,7 @@ export interface ExtractionSettings {
   maxChunks?: number // Limit chunks to avoid timeout (default: 15)
   parallelBatchSize?: number // Process N chunks in parallel (default: 3)
   customPrompts?: CustomPrompts // Custom extraction prompts
-  extractionModel?: ClaudeModel // Model to use for extraction
+  extractionModel?: AIModel // Model to use for extraction (Claude or Gemini)
 }
 
 export async function runExtractionPipeline(
