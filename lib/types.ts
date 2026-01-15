@@ -3,11 +3,6 @@ export type {
   User,
   Campaign,
   CampaignMember,
-  Note,
-  NoteLink,
-  NoteVersion,
-  NoteEmbedding,
-  NoteType,
   MemberRole,
 } from './db/schema'
 

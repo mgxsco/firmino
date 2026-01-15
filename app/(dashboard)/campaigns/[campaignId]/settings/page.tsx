@@ -28,9 +28,9 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { CampaignSidebar } from '@/components/campaigns/campaign-sidebar'
 import { useToast } from '@/components/ui/use-toast'
-import { Save, Trash2, RefreshCw, Loader2, Globe, Cog, Search, Network, AlertTriangle, MessageSquare, RotateCcw, Download, Sparkles } from 'lucide-react'
+import { Save, Trash2, RefreshCw, Loader2, Globe, Cog, Search, AlertTriangle, MessageSquare, RotateCcw, Download, Sparkles } from 'lucide-react'
 import { ExportDialog } from '@/components/campaigns/export-dialog'
-import { getCampaignSettings, DEFAULT_SETTINGS, AGGRESSIVENESS_OPTIONS, CHUNK_SIZE_OPTIONS, LINK_LABEL_OPTIONS, DEFAULT_PROMPTS, CHAT_MODEL_OPTIONS, EXTRACTION_MODEL_OPTIONS } from '@/lib/campaign-settings'
+import { getCampaignSettings, DEFAULT_SETTINGS, AGGRESSIVENESS_OPTIONS, CHUNK_SIZE_OPTIONS, DEFAULT_PROMPTS, CHAT_MODEL_OPTIONS, EXTRACTION_MODEL_OPTIONS } from '@/lib/campaign-settings'
 import type { CampaignSettings, AIModel } from '@/lib/db/schema'
 
 const LANGUAGES = [
@@ -107,16 +107,6 @@ export default function SettingsPage() {
     setSettings((prev) => ({
       ...prev,
       search: { ...prev.search, [key]: value },
-    }))
-  }
-
-  const updateGraphSetting = <K extends keyof typeof settings.graph>(
-    key: K,
-    value: typeof settings.graph[K]
-  ) => {
-    setSettings((prev) => ({
-      ...prev,
-      graph: { ...prev.graph, [key]: value },
     }))
   }
 
@@ -259,13 +249,12 @@ export default function SettingsPage() {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="w-full overflow-x-auto flex sm:grid sm:grid-cols-7 scrollbar-hide">
+          <TabsList className="w-full overflow-x-auto flex sm:grid sm:grid-cols-6 scrollbar-hide">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="model">AI Model</TabsTrigger>
             <TabsTrigger value="extraction">Extraction</TabsTrigger>
             <TabsTrigger value="search">Search</TabsTrigger>
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
-            <TabsTrigger value="graph">Graph</TabsTrigger>
             <TabsTrigger value="danger">Danger</TabsTrigger>
           </TabsList>
 
@@ -791,85 +780,6 @@ export default function SettingsPage() {
                     <p className="text-xs text-muted-foreground">
                       Used when extraction is set to &quot;Obsessive&quot; - extracts every possible entity.
                     </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Graph Tab */}
-          <TabsContent value="graph">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Network className="h-5 w-5" />
-                  Knowledge Graph Settings
-                </CardTitle>
-                <CardDescription>
-                  Configure the visual graph display
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Max Nodes */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Maximum Nodes to Render</Label>
-                    <span className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
-                      {settings.graph.maxNodes}
-                    </span>
-                  </div>
-                  <Slider
-                    value={[settings.graph.maxNodes]}
-                    onValueChange={([v]) => updateGraphSetting('maxNodes', v)}
-                    min={50}
-                    max={1000}
-                    step={50}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>50 nodes</span>
-                    <span>1000 nodes</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Higher values may impact browser performance with large graphs.
-                  </p>
-                </div>
-
-                {/* Link Labels */}
-                <div className="space-y-3">
-                  <Label>Relationship Labels</Label>
-                  <Select
-                    value={settings.graph.showLinkLabels}
-                    onValueChange={(v) => updateGraphSetting('showLinkLabels', v as any)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LINK_LABEL_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-sm text-muted-foreground">
-                    When to display relationship type labels on graph edges.
-                  </p>
-                </div>
-
-                {/* Default Private */}
-                <div className="space-y-4 pt-4 border-t">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Default New Entities to Private</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Newly extracted entities will be hidden from collaborators by default
-                      </p>
-                    </div>
-                    <Switch
-                      checked={settings.visibility.defaultDmOnly}
-                      onCheckedChange={(v) => updateVisibilitySetting('defaultDmOnly', v)}
-                    />
                   </div>
                 </div>
               </CardContent>

@@ -115,7 +115,6 @@ export const DEFAULT_SETTINGS: Required<{
   extraction: Required<NonNullable<CampaignSettings['extraction']>>
   visibility: Required<NonNullable<CampaignSettings['visibility']>>
   search: Required<NonNullable<CampaignSettings['search']>>
-  graph: Required<NonNullable<CampaignSettings['graph']>>
   prompts: Required<NonNullable<CampaignSettings['prompts']>>
 }> = {
   model: {
@@ -139,10 +138,6 @@ export const DEFAULT_SETTINGS: Required<{
     similarityThreshold: 0.15,
     resultLimit: 8,
     enablePlayerChat: false,
-  },
-  graph: {
-    maxNodes: 500,
-    showLinkLabels: 'on-hover',
   },
   prompts: {
     chatSystemPrompt: DEFAULT_PROMPTS.chatSystemPrompt,
@@ -174,10 +169,6 @@ export function getCampaignSettings(settings?: CampaignSettings | null): typeof 
     search: {
       ...DEFAULT_SETTINGS.search,
       ...(settings.search || {}),
-    },
-    graph: {
-      ...DEFAULT_SETTINGS.graph,
-      ...(settings.graph || {}),
     },
     prompts: {
       ...DEFAULT_SETTINGS.prompts,
@@ -226,15 +217,6 @@ export const CHUNK_SIZE_OPTIONS = [
     label: 'Large (10000 chars)',
     description: 'Faster processing, may miss subtle connections',
   },
-]
-
-/**
- * Link label visibility options
- */
-export const LINK_LABEL_OPTIONS = [
-  { value: 'always' as const, label: 'Always visible' },
-  { value: 'on-hover' as const, label: 'Show on hover' },
-  { value: 'never' as const, label: 'Never show' },
 ]
 
 /**

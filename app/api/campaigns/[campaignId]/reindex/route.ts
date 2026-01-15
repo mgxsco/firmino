@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { db, campaigns, campaignMembers, notes, entities } from '@/lib/db'
+import { db, campaigns, campaignMembers, entities } from '@/lib/db'
 import { eq, and } from 'drizzle-orm'
-import { syncNoteEmbeddings } from '@/lib/ai/embeddings'
 import { syncEntityEmbeddings } from '@/lib/ai/entity-embeddings'
-import { syncNoteLinks } from '@/lib/wikilinks/sync'
 
-// Regenerate embeddings for all entities (and legacy notes) in a campaign
+// Regenerate embeddings for all entities in a campaign
 export async function POST(
   request: Request,
   { params }: { params: { campaignId: string } }
@@ -46,14 +44,13 @@ export async function POST(
   }
 
   const results: Array<{
-    type: 'entity' | 'note'
     id: string
     name: string
     success: boolean
     error?: string
   }> = []
 
-  // First, reindex all entities (knowledge graph)
+  // Reindex all entities
   const allEntities = await db
     .select()
     .from(entities)
@@ -72,11 +69,10 @@ export async function POST(
         entity.content || ''
       )
 
-      results.push({ type: 'entity', id: entity.id, name: entity.name, success: true })
+      results.push({ id: entity.id, name: entity.name, success: true })
     } catch (error) {
       console.error(`[Reindex] Failed to process entity ${entity.id}:`, error)
       results.push({
-        type: 'entity',
         id: entity.id,
         name: entity.name,
         success: false,
@@ -85,55 +81,14 @@ export async function POST(
     }
   }
 
-  // Also reindex legacy notes (for backward compatibility)
-  const allNotes = await db
-    .select()
-    .from(notes)
-    .where(eq(notes.campaignId, params.campaignId))
-
-  console.log(`[Reindex] Found ${allNotes.length} legacy notes to process`)
-
-  for (const note of allNotes) {
-    try {
-      console.log(`[Reindex] Processing note: ${note.title}`)
-
-      // Sync embeddings
-      await syncNoteEmbeddings(
-        note.id,
-        params.campaignId,
-        note.title,
-        note.content || ''
-      )
-
-      // Sync wikilinks
-      await syncNoteLinks(note.id, params.campaignId, note.content || '')
-
-      results.push({ type: 'note', id: note.id, name: note.title, success: true })
-    } catch (error) {
-      console.error(`[Reindex] Failed to process note ${note.id}:`, error)
-      results.push({
-        type: 'note',
-        id: note.id,
-        name: note.title,
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      })
-    }
-  }
-
-  const entitySuccess = results.filter((r) => r.type === 'entity' && r.success).length
-  const noteSuccess = results.filter((r) => r.type === 'note' && r.success).length
+  const successCount = results.filter((r) => r.success).length
 
   return NextResponse.json({
     success: true,
-    message: `Processed ${entitySuccess} of ${allEntities.length} entities, ${noteSuccess} of ${allNotes.length} notes`,
+    message: `Processed ${successCount} of ${allEntities.length} entities`,
     entities: {
       total: allEntities.length,
-      success: entitySuccess,
-    },
-    notes: {
-      total: allNotes.length,
-      success: noteSuccess,
+      success: successCount,
     },
     results,
   })

@@ -6,13 +6,10 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Home,
-  Network,
   MessageSquare,
   Settings,
   ArrowLeft,
   BookOpen,
-  ScrollText,
-  CalendarDays,
   Users,
 } from 'lucide-react'
 
@@ -35,21 +32,6 @@ export function CampaignSidebar({ campaignId, isDM }: CampaignSidebarProps) {
       href: `/campaigns/${campaignId}/entities`,
       label: 'Wiki',
       icon: BookOpen,
-    },
-    {
-      href: `/campaigns/${campaignId}/sessions`,
-      label: 'Sessions',
-      icon: CalendarDays,
-    },
-    {
-      href: `/campaigns/${campaignId}/notes`,
-      label: 'Notes',
-      icon: ScrollText,
-    },
-    {
-      href: `/campaigns/${campaignId}/graph`,
-      label: 'Knowledge Graph',
-      icon: Network,
     },
     {
       href: `/campaigns/${campaignId}/party-chat`,

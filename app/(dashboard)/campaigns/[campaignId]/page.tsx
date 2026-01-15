@@ -10,15 +10,12 @@ import { CampaignSidebar } from '@/components/campaigns/campaign-sidebar'
 import { PartyPanel } from '@/components/campaigns/party-panel'
 import { InviteModal } from '@/components/campaigns/invite-modal'
 import { CampaignSpotlight } from '@/components/campaigns/campaign-spotlight'
-import { SessionTimeline } from '@/components/campaigns/session-timeline'
 import { ActivityFeed } from '@/components/campaigns/activity-feed'
-import { MiniGraph } from '@/components/campaigns/mini-graph'
 import { PCCards } from '@/components/campaigns/pc-cards'
 import { QuestTracker } from '@/components/campaigns/quest-tracker'
 import {
   BookOpen,
   MessageSquare,
-  Network,
   Users,
   FileText,
   Plus,
@@ -27,10 +24,8 @@ import {
   Crown,
   Globe,
   Calendar,
-  CalendarDays,
   Loader2,
   Settings,
-  ChevronRight,
 } from 'lucide-react'
 
 interface CampaignData {
@@ -232,18 +227,12 @@ export default function CampaignHomePage() {
         <CampaignSpotlight campaignId={campaignId} />
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
           <StatCard
             icon={<BookOpen className="h-5 w-5" />}
             label="Wiki Entries"
             value={stats?.entityCount ?? 0}
             href={`/campaigns/${campaignId}/entities`}
-          />
-          <StatCard
-            icon={<Network className="h-5 w-5" />}
-            label="Connections"
-            value={stats?.relationshipCount ?? 0}
-            href={`/campaigns/${campaignId}/graph`}
           />
           <StatCard
             icon={<FileText className="h-5 w-5" />}
@@ -259,14 +248,8 @@ export default function CampaignHomePage() {
           />
         </div>
 
-        {/* Session Timeline */}
-        <SessionTimeline campaignId={campaignId} isDM={isDM} />
-
-        {/* Two Column Layout: Activity Feed + Mini Graph */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-          <ActivityFeed campaignId={campaignId} limit={8} />
-          <MiniGraph campaignId={campaignId} />
-        </div>
+        {/* Activity Feed */}
+        <ActivityFeed campaignId={campaignId} limit={8} />
 
         {/* Two Column Layout: PC Cards + Quest Tracker */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
@@ -284,7 +267,7 @@ export default function CampaignHomePage() {
             <CardDescription>Common tasks for your campaign</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Link href={`/campaigns/${campaignId}/entities?upload=true`}>
                 <Button variant="outline" className="w-full h-auto py-3 flex flex-col items-center gap-1">
                   <Upload className="h-5 w-5" />
@@ -301,12 +284,6 @@ export default function CampaignHomePage() {
                 <Button variant="outline" className="w-full h-auto py-3 flex flex-col items-center gap-1">
                   <MessageSquare className="h-5 w-5" />
                   <span className="text-xs">Chat</span>
-                </Button>
-              </Link>
-              <Link href={`/campaigns/${campaignId}/graph`}>
-                <Button variant="outline" className="w-full h-auto py-3 flex flex-col items-center gap-1">
-                  <Network className="h-5 w-5" />
-                  <span className="text-xs">Graph</span>
                 </Button>
               </Link>
             </div>

@@ -129,10 +129,6 @@ export interface CampaignSettings {
     resultLimit?: number
     enablePlayerChat?: boolean
   }
-  graph?: {
-    maxNodes?: number
-    showLinkLabels?: 'always' | 'on-hover' | 'never'
-  }
   prompts?: {
     chatSystemPrompt?: string
     extractionConservativePrompt?: string
@@ -196,102 +192,11 @@ export const campaignInvites = pgTable(
   })
 )
 
-export const notes = pgTable(
-  'notes',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    campaignId: uuid('campaign_id')
-      .notNull()
-      .references(() => campaigns.id, { onDelete: 'cascade' }),
-    authorId: uuid('author_id')
-      .notNull()
-      .references(() => users.id),
-    title: text('title').notNull(),
-    slug: text('slug').notNull(),
-    content: text('content').default(''),
-    noteType: text('note_type', {
-      enum: [
-        'session',
-        'npc',
-        'location',
-        'item',
-        'lore',
-        'quest',
-        'faction',
-        'player_character',
-        'freeform',
-      ],
-    }).notNull(),
-    tags: text('tags').array().default(sql`'{}'::text[]`),
-    isDmOnly: boolean('is_dm_only').default(false),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => ({
-    uniqueSlug: unique().on(table.campaignId, table.slug),
-    campaignIdx: index('notes_campaign_idx').on(table.campaignId),
-    campaignDmUpdatedIdx: index('notes_campaign_dm_updated_idx').on(table.campaignId, table.isDmOnly, table.updatedAt),
-    campaignTypeIdx: index('notes_campaign_type_idx').on(table.campaignId, table.noteType),
-  })
-)
-
-export const noteLinks = pgTable(
-  'note_links',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    sourceNoteId: uuid('source_note_id')
-      .notNull()
-      .references(() => notes.id, { onDelete: 'cascade' }),
-    targetNoteId: uuid('target_note_id')
-      .notNull()
-      .references(() => notes.id, { onDelete: 'cascade' }),
-    campaignId: uuid('campaign_id')
-      .notNull()
-      .references(() => campaigns.id, { onDelete: 'cascade' }),
-  },
-  (table) => ({
-    uniqueLink: unique().on(table.sourceNoteId, table.targetNoteId),
-  })
-)
-
-export const noteVersions = pgTable('note_versions', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  noteId: uuid('note_id')
-    .notNull()
-    .references(() => notes.id, { onDelete: 'cascade' }),
-  title: text('title').notNull(),
-  content: text('content').notNull(),
-  editedBy: uuid('edited_by')
-    .notNull()
-    .references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-})
-
-export const noteEmbeddings = pgTable(
-  'note_embeddings',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    noteId: uuid('note_id')
-      .notNull()
-      .references(() => notes.id, { onDelete: 'cascade' }),
-    campaignId: uuid('campaign_id')
-      .notNull()
-      .references(() => campaigns.id, { onDelete: 'cascade' }),
-    chunkIndex: integer('chunk_index').notNull(),
-    chunkText: text('chunk_text').notNull(),
-    embedding: vector('embedding', { dimensions: 1024 }),
-  },
-  (table) => ({
-    campaignIdx: index('embeddings_campaign_idx').on(table.campaignId),
-    noteIdx: index('embeddings_note_idx').on(table.noteId),
-  })
-)
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   campaigns: many(campaigns),
   memberships: many(campaignMembers),
-  notes: many(notes),
 }))
 
 export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
@@ -302,7 +207,6 @@ export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
   members: many(campaignMembers),
   invites: many(campaignInvites),
   messages: many(messages),
-  notes: many(notes),
 }))
 
 export const campaignMembersRelations = relations(campaignMembers, ({ one }) => ({
@@ -365,59 +269,6 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }))
 
-export const notesRelations = relations(notes, ({ one, many }) => ({
-  campaign: one(campaigns, {
-    fields: [notes.campaignId],
-    references: [campaigns.id],
-  }),
-  author: one(users, {
-    fields: [notes.authorId],
-    references: [users.id],
-  }),
-  versions: many(noteVersions),
-  embeddings: many(noteEmbeddings),
-  outgoingLinks: many(noteLinks, { relationName: 'sourceNote' }),
-  incomingLinks: many(noteLinks, { relationName: 'targetNote' }),
-}))
-
-export const noteLinksRelations = relations(noteLinks, ({ one }) => ({
-  sourceNote: one(notes, {
-    fields: [noteLinks.sourceNoteId],
-    references: [notes.id],
-    relationName: 'sourceNote',
-  }),
-  targetNote: one(notes, {
-    fields: [noteLinks.targetNoteId],
-    references: [notes.id],
-    relationName: 'targetNote',
-  }),
-  campaign: one(campaigns, {
-    fields: [noteLinks.campaignId],
-    references: [campaigns.id],
-  }),
-}))
-
-export const noteVersionsRelations = relations(noteVersions, ({ one }) => ({
-  note: one(notes, {
-    fields: [noteVersions.noteId],
-    references: [notes.id],
-  }),
-  editor: one(users, {
-    fields: [noteVersions.editedBy],
-    references: [users.id],
-  }),
-}))
-
-export const noteEmbeddingsRelations = relations(noteEmbeddings, ({ one }) => ({
-  note: one(notes, {
-    fields: [noteEmbeddings.noteId],
-    references: [notes.id],
-  }),
-  campaign: one(campaigns, {
-    fields: [noteEmbeddings.campaignId],
-    references: [campaigns.id],
-  }),
-}))
 
 // ============================================
 // NEW: Obsidian-style Knowledge Graph Tables
@@ -452,7 +303,6 @@ export const commonEntityTypes = [
   'lore',
   'quest',
   'faction',
-  'session',
   'player_character',
   'creature',
   'spell',
@@ -490,15 +340,6 @@ export const entities = pgTable(
     aliases: text('aliases').array().default(sql`'{}'::text[]`),
     tags: text('tags').array().default(sql`'{}'::text[]`),
     isDmOnly: boolean('is_dm_only').default(false),
-
-    // Original note reference (for migration)
-    sourceNoteId: uuid('source_note_id').references(() => notes.id),
-
-    // Session-specific fields (only used when entityType = 'session')
-    sessionNumber: integer('session_number'),
-    sessionDate: timestamp('session_date', { mode: 'date' }),
-    inGameDate: text('in_game_date'),
-    sessionStatus: text('session_status'), // 'planned' | 'completed' | 'cancelled'
 
     // Player character ownership (only used when entityType = 'player_character')
     playerId: uuid('player_id').references(() => campaignMembers.id, { onDelete: 'set null' }),
@@ -648,10 +489,6 @@ export const entitiesRelations = relations(entities, ({ one, many }) => ({
     fields: [entities.campaignId],
     references: [campaigns.id],
   }),
-  sourceNote: one(notes, {
-    fields: [entities.sourceNoteId],
-    references: [notes.id],
-  }),
   player: one(campaignMembers, {
     fields: [entities.playerId],
     references: [campaignMembers.id],
@@ -726,14 +563,9 @@ export type User = typeof users.$inferSelect
 export type Campaign = typeof campaigns.$inferSelect
 export type CampaignMember = typeof campaignMembers.$inferSelect
 export type CampaignInvite = typeof campaignInvites.$inferSelect
-export type Note = typeof notes.$inferSelect
-export type NoteLink = typeof noteLinks.$inferSelect
-export type NoteVersion = typeof noteVersions.$inferSelect
-export type NoteEmbedding = typeof noteEmbeddings.$inferSelect
-export type NoteType = Note['noteType']
 export type MemberRole = CampaignMember['role']
 
-// New types for knowledge graph
+// Types for knowledge graph
 export type Document = typeof documents.$inferSelect
 export type Entity = typeof entities.$inferSelect
 export type EntitySource = typeof entitySources.$inferSelect
@@ -742,7 +574,6 @@ export type Chunk = typeof chunks.$inferSelect
 export type EntityVersion = typeof entityVersions.$inferSelect
 export type EntityType = Entity['entityType']
 export type RelationshipType = (typeof relationshipTypeEnum)[number]
-export type SessionStatus = 'planned' | 'completed' | 'cancelled'
 
 // Chat types
 export type Message = typeof messages.$inferSelect

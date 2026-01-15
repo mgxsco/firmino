@@ -1,7 +1,3 @@
-import { db, noteEmbeddings } from '@/lib/db'
-import { eq } from 'drizzle-orm'
-import { chunkContent } from './chunker'
-
 // Helper for delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -68,70 +64,4 @@ export async function generateEmbedding(
   }
 
   throw new Error('Failed to generate embedding after retries')
-}
-
-/**
- * Sync embeddings for a note
- * - Chunks the content
- * - Generates embeddings for each chunk
- * - Stores in database
- */
-export async function syncNoteEmbeddings(
-  noteId: string,
-  campaignId: string,
-  title: string,
-  content: string
-): Promise<void> {
-  console.log('[Embeddings] Syncing embeddings for note:', title)
-  console.log('[Embeddings] JINA_API_KEY configured:', !!process.env.JINA_API_KEY)
-
-  // Check if Jina API key is configured
-  if (!process.env.JINA_API_KEY) {
-    console.log('[Embeddings] Skipping: JINA_API_KEY not configured')
-    return
-  }
-
-  // Delete old embeddings
-  console.log('[Embeddings] Deleting old embeddings for note:', noteId)
-  await db.delete(noteEmbeddings).where(eq(noteEmbeddings.noteId, noteId))
-
-  // Skip if content is empty
-  if (!content.trim()) {
-    console.log('[Embeddings] Skipping: content is empty')
-    return
-  }
-
-  // Chunk the content
-  const chunks = chunkContent(content, title)
-  console.log('[Embeddings] Created', chunks.length, 'chunks from content')
-
-  // Generate embeddings and store
-  let successCount = 0
-  for (const chunk of chunks) {
-    try {
-      console.log('[Embeddings] Processing chunk', chunk.index, '- length:', chunk.text.length)
-      const embedding = await generateEmbedding(chunk.text)
-
-      await db.insert(noteEmbeddings).values({
-        noteId,
-        campaignId,
-        chunkIndex: chunk.index,
-        chunkText: chunk.text,
-        embedding,
-      })
-      successCount++
-      console.log('[Embeddings] Stored chunk', chunk.index, 'successfully')
-    } catch (error) {
-      console.error(`[Embeddings] Failed to embed chunk ${chunk.index}:`, error)
-    }
-  }
-
-  console.log('[Embeddings] Completed:', successCount, 'of', chunks.length, 'chunks stored')
-}
-
-/**
- * Delete all embeddings for a note
- */
-export async function deleteNoteEmbeddings(noteId: string): Promise<void> {
-  await db.delete(noteEmbeddings).where(eq(noteEmbeddings.noteId, noteId))
 }

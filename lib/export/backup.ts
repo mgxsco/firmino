@@ -41,10 +41,6 @@ export interface CampaignBackup {
     aliases: string[] | null
     tags: string[] | null
     isDmOnly: boolean | null
-    sessionNumber: number | null
-    sessionDate: string | null
-    inGameDate: string | null
-    sessionStatus: string | null
     playerEmail: string | null
     createdAt: string
     updatedAt: string
@@ -193,10 +189,6 @@ export async function generateBackupExport(
       aliases: e.aliases,
       tags: e.tags,
       isDmOnly: e.isDmOnly,
-      sessionNumber: e.sessionNumber,
-      sessionDate: e.sessionDate?.toISOString() || null,
-      inGameDate: e.inGameDate,
-      sessionStatus: e.sessionStatus,
       playerEmail: e.player?.user?.email || null,
       createdAt: e.createdAt.toISOString(),
       updatedAt: e.updatedAt.toISOString(),

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { getSession } from '@/lib/auth'
-import { db, campaigns, campaignMembers, entities } from '@/lib/db'
-import { eq, and, desc, or, inArray } from 'drizzle-orm'
+import { db, campaigns, entities } from '@/lib/db'
+import { eq, and, desc } from 'drizzle-orm'
 
 // Lazy-initialize Anthropic client
 let anthropicClient: Anthropic | null = null
@@ -22,7 +22,7 @@ function getAnthropic(): Anthropic {
 interface SpotlightCache {
   data: SpotlightData
   timestamp: number
-  sessionCount: number
+  entityCount: number
 }
 
 interface SpotlightData {
@@ -62,21 +62,18 @@ export async function GET(
       return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
     }
 
-    // Get current session count for cache invalidation
-    const sessionEntities = await db.query.entities.findMany({
-      where: and(
-        eq(entities.campaignId, campaignId),
-        eq(entities.entityType, 'session')
-      ),
+    // Get current entity count for cache invalidation
+    const allEntities = await db.query.entities.findMany({
+      where: eq(entities.campaignId, campaignId),
     })
-    const currentSessionCount = sessionEntities.length
+    const currentEntityCount = allEntities.length
 
     // Check cache
     const cached = spotlightCache.get(campaignId)
     if (
       cached &&
       Date.now() - cached.timestamp < CACHE_DURATION &&
-      cached.sessionCount === currentSessionCount
+      cached.entityCount === currentEntityCount
     ) {
       return NextResponse.json(cached.data)
     }
@@ -88,7 +85,7 @@ export async function GET(
     spotlightCache.set(campaignId, {
       data: spotlight,
       timestamp: Date.now(),
-      sessionCount: currentSessionCount,
+      entityCount: currentEntityCount,
     })
 
     return NextResponse.json(spotlight)
@@ -106,17 +103,6 @@ async function generateSpotlight(
   campaignName: string,
   language: string
 ): Promise<SpotlightData> {
-  // Fetch recent completed sessions
-  const recentSessions = await db.query.entities.findMany({
-    where: and(
-      eq(entities.campaignId, campaignId),
-      eq(entities.entityType, 'session'),
-      eq(entities.sessionStatus, 'completed')
-    ),
-    orderBy: [desc(entities.sessionNumber)],
-    limit: 3,
-  })
-
   // Fetch active quests
   const quests = await db.query.entities.findMany({
     where: and(
@@ -145,8 +131,18 @@ async function generateSpotlight(
     limit: 10,
   })
 
-  // If no sessions and few entities, return a default spotlight
-  if (recentSessions.length === 0 && quests.length === 0 && recentNPCs.length === 0) {
+  // Fetch key locations
+  const locations = await db.query.entities.findMany({
+    where: and(
+      eq(entities.campaignId, campaignId),
+      eq(entities.entityType, 'location')
+    ),
+    orderBy: [desc(entities.updatedAt)],
+    limit: 5,
+  })
+
+  // If few entities, return a default spotlight
+  if (quests.length === 0 && recentNPCs.length === 0 && locations.length === 0) {
     return {
       summary: language === 'pt-BR'
         ? 'Uma nova aventura aguarda! Esta campanha está apenas começando sua jornada épica.'
@@ -165,18 +161,6 @@ async function generateSpotlight(
   // Build context for AI
   let context = `Campaign: ${campaignName}\n\n`
 
-  if (recentSessions.length > 0) {
-    context += 'Recent Sessions:\n'
-    for (const session of recentSessions) {
-      context += `- Session ${session.sessionNumber}: ${session.name}\n`
-      if (session.content) {
-        // Take first 500 chars of content
-        context += `  ${session.content.slice(0, 500)}...\n`
-      }
-    }
-    context += '\n'
-  }
-
   if (quests.length > 0) {
     context += 'Active Quests:\n'
     for (const quest of quests) {
@@ -189,6 +173,14 @@ async function generateSpotlight(
     context += 'Key NPCs:\n'
     for (const npc of recentNPCs) {
       context += `- ${npc.name}: ${npc.content?.slice(0, 150) || 'No description'}...\n`
+    }
+    context += '\n'
+  }
+
+  if (locations.length > 0) {
+    context += 'Key Locations:\n'
+    for (const location of locations) {
+      context += `- ${location.name}: ${location.content?.slice(0, 150) || 'No description'}...\n`
     }
     context += '\n'
   }
@@ -251,15 +243,6 @@ Be vivid and evocative but stay true to the content provided. If information is 
   // Collect featured entities
   const featuredEntities: SpotlightData['featuredEntities'] = []
 
-  // Add most recent session
-  if (recentSessions[0]) {
-    featuredEntities.push({
-      id: recentSessions[0].id,
-      name: recentSessions[0].name,
-      entityType: 'session',
-    })
-  }
-
   // Add first quest
   if (quests[0]) {
     featuredEntities.push({
@@ -275,6 +258,15 @@ Be vivid and evocative but stay true to the content provided. If information is 
       id: recentNPCs[0].id,
       name: recentNPCs[0].name,
       entityType: 'npc',
+    })
+  }
+
+  // Add first location
+  if (locations[0]) {
+    featuredEntities.push({
+      id: locations[0].id,
+      name: locations[0].name,
+      entityType: 'location',
     })
   }
 
@@ -321,17 +313,14 @@ export async function POST(
     const spotlight = await generateSpotlight(campaignId, campaign.name, campaign.language)
 
     // Cache the result
-    const sessionEntities = await db.query.entities.findMany({
-      where: and(
-        eq(entities.campaignId, campaignId),
-        eq(entities.entityType, 'session')
-      ),
+    const allEntities = await db.query.entities.findMany({
+      where: eq(entities.campaignId, campaignId),
     })
 
     spotlightCache.set(campaignId, {
       data: spotlight,
       timestamp: Date.now(),
-      sessionCount: sessionEntities.length,
+      entityCount: allEntities.length,
     })
 
     return NextResponse.json(spotlight)

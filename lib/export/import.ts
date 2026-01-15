@@ -155,10 +155,6 @@ export async function importCampaignBackup(
         aliases: entity.aliases || [],
         tags: entity.tags || [],
         isDmOnly: entity.isDmOnly || false,
-        sessionNumber: entity.sessionNumber,
-        sessionDate: entity.sessionDate ? new Date(entity.sessionDate) : null,
-        inGameDate: entity.inGameDate,
-        sessionStatus: entity.sessionStatus,
         playerId,
       })
       .returning()

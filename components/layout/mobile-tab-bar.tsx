@@ -6,13 +6,10 @@ import { usePathname, useParams } from 'next/navigation'
 import {
   Home,
   BookOpen,
-  ScrollText,
   MessageSquare,
   Menu,
   X,
-  Network,
   Users,
-  CalendarDays,
   Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -30,14 +27,11 @@ export function MobileTabBar() {
   const mainTabs = [
     { href: `/campaigns/${campaignId}`, icon: Home, label: 'Home', exact: true },
     { href: `/campaigns/${campaignId}/entities`, icon: BookOpen, label: 'Wiki' },
-    { href: `/campaigns/${campaignId}/sessions`, icon: CalendarDays, label: 'Sessions' },
-    { href: `/campaigns/${campaignId}/notes`, icon: ScrollText, label: 'Notes' },
+    { href: `/campaigns/${campaignId}/party-chat`, icon: Users, label: 'Party Chat' },
+    { href: `/campaigns/${campaignId}/chat`, icon: MessageSquare, label: 'Chat' },
   ]
 
   const moreTabs = [
-    { href: `/campaigns/${campaignId}/graph`, icon: Network, label: 'Knowledge Graph' },
-    { href: `/campaigns/${campaignId}/party-chat`, icon: Users, label: 'Party Chat' },
-    { href: `/campaigns/${campaignId}/chat`, icon: MessageSquare, label: 'Barão Pedregulho' },
     { href: `/campaigns/${campaignId}/settings`, icon: Settings, label: 'Settings' },
   ]
 
